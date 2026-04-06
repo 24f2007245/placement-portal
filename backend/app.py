@@ -6,7 +6,7 @@ from flask_cors import CORS
 load_dotenv()
 app= Flask(__name__)
 
-CORS(app)
+CORS(app,origin="http://localhost:5173")
 
 app.config["JWT_SECRET_KEY"]='XYCHHORANADANPASSHAICOMPLEX'
 jwt=JWTManager(app)
@@ -45,7 +45,8 @@ if __name__=='__main__':
             admin=User(
                 user_email='admin@admin.com',
                 user_password=os.getenv("PASSWORD"), 
-                role=admin_role )
+                role=admin_role,
+                user_name='Admin' )
             
             db.session.add(admin)
             db.session.commit()

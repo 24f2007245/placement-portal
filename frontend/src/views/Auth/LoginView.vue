@@ -1,35 +1,36 @@
 
 <template>
     <HomeNav/>
-    <br><br><br><br>
     <div id="reg-de">
         
-        <h5>Login&emsp;</h5>
+        <h1>Login&emsp;</h1>
             <form method="POST" @submit.prevent="submitForm">
-                <label for="email">Enter Your Email Address:</label>
+                <label for="email">EMAIL ID</label><br>
                 <input type="email" name="email" id="email" v-model="formData.email" placeholder="example@zxy.com" required><br>
 
-                <label for="password">Enter Your Password:</label>
-                <input type="password" name="password" id="password" v-model="formData.password" placeholder="passoword" required><br>
+                <label for="password">PASSWARD</label><br>
+                <input type="password" name="password" id="password" v-model="formData.password" placeholder="passoword" required><br><br>
 
-                <button type="submit">login</button><br><br>
+                <button type="submit" class="bld">login</button><br><br>
                 <p>{{ message }}</p>
                 
                 <!-- <router-link to="/login">or login here</router-link> -->
             </form>
 
     </div>
+    <Footer/>
     
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router'
+// import { RouterLink } from 'vue-router'
 import {ref, reactive, onMounted} from 'vue'
 import HomeNav from '@/components/HomeNav.vue'
+import Footer from '@/components/Footer.vue'
 
 const formData = reactive({
-    email: 'pappu@gmail.com',
-    password: 'kundan'
+    email: 'admin@admin.com',
+    password: 'admin'
 })
 
 const message = ref('')
@@ -47,7 +48,6 @@ async function submitForm(){
 
     const data=await response.json()
     
-    console.log("data: "+data)
     if(!response.ok){
         console.log('okvgytgvtde')
         message.value='ERROR HAPPENS: '+ data.message
@@ -56,16 +56,17 @@ async function submitForm(){
         localStorage.setItem('token', data.access_token)
         localStorage.setItem('email',data.email)
         localStorage.setItem('role',data.role)
+        localStorage.setItem('user_name',data.user_name)
         message.value="login successful Redirecting..."
         
         if (data.role=='student'){
-        window.location.href='/student/dash'
+        window.location.href='/student'
         }
         if(data.role=='admin'){
-            window.location.href='/admin/dash'
+            window.location.href='/admin'
         }
         if(data.role=='company'){
-            window.location.href='/company/dash'
+            window.location.href='/company'
         }
         
     }
@@ -81,12 +82,29 @@ async function submitForm(){
     background-color: #f5f5f5;
     display: flex;
     justify-content: center;
-    padding: 20px;
+    padding: 100px;
+
     /* align-items: center; */
 }
-h5{
-    font-size:larger;
+h1{
+    /* font-size:larger; */
     color: #2980b9;
+}
+input{
+    width: 300px;
+    line-height: 30px;
+    margin: 1px;
+}
+
+
+@media(max-width:770px){
+    #reg-de{
+        display: block;
+        padding: 30px;
+    }
+    input{
+        width: 250px;
+    }
 }
 
 </style>

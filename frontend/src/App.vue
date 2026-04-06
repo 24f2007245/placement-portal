@@ -7,8 +7,8 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <header>
     <div id="top_bar">
-      <div>contact us | +91 6200209997&emsp;</div>
-      <div>&emsp;application deadline | 10th April</div>
+      <div class="top_ele" id="rm">Contact Us | +91 6200999999 , +91 9900620099&emsp;</div>
+      <div class="top_ele">Application Deadline | 10th April </div>
       
     </div>
   </header>
@@ -27,11 +27,30 @@ body{
   display: flex;
   /* justify-content: space-between; */
   align-items: center;
-  justify-content: center;
-  background-color: #2980B9;
-  color: white;
+  justify-content:center;
+  background-color: #f5f5f5;
+  color: #2980b9;
   padding: 3px;
-  /* padding: 2px 30%; */
+  gap: 150px;
+
+}
+.top_ele{
+  padding-left: 20px;
+}
+@media(max-width:790px){
+  #top_bar{
+   gap: 20px;
+  }
+}
+@media(max-width:500px){
+  /* overflow: hidden; */
+  #rm{
+    display: none;
+  }
+  #top_bar{
+    display: block;
+  }
+
 }
 
 

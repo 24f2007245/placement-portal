@@ -1,6 +1,6 @@
 <template>
     <nav>
-      <span><strong>Placements Cell&nbsp;</strong></span>
+      <span id="for_font" @click="indicate_index"><img src="../assets/logo.svg" ></span>
 
       <div id="nav_right">
         
@@ -20,25 +20,51 @@
   localStorage.clear();
   window.location.href="/login";
  }
-
+ function indicate_index(){
+  window.location.href='/';
+ }
+ 
 </script>
 
 <style scoped>
+#for_font{
+  margin-left: 20px;
+}
 nav{
   /* text-decoration:solid; */
-  color: #2980B9;
+  /* color: #2980B9; */
+  position: sticky;
+  top: 0;
+  color: #f5f5f5;
   display: flex;
   justify-content:left;
   justify-content: space-between;
   /* justify-content: space-between; */
-  background-color:#f5f5f5;
+  background-color:#2980b9;
   padding: 10px;
+  z-index: 1000;
+  /* border: 1px solid gray; */
 }
 #nav_right{
   display: flex;
   gap: 10px;
   align-items: center;
 
+}
+img{
+  width: 30px;
+  transform: scale(1.6);
+}
+button{
+  border: 1px solid #f5f5f5;
+  background-color: #2980B9;
+  color: #f5f5f5;
+  padding: 5px;
+}
+button:hover{
+  background-color: cadetblue;
+  color: white;
+  
 }
 </style>
     

@@ -48,9 +48,59 @@ button{
 button:hover{
   background-color: #2980b9;
   color: white;
+  transition: 0.2s ease-in;
+  transform: scale(1.2);
 }
 
 input{
   padding: 3px;
   color: #2980b9;
+}
+.dngr{
+  color: red;
+}
+td{
+    color: gray;
+    padding: 10px;
+    max-width: 400px;
+}
+th{
+    color:#2980B9;
+    padding: 3px;
+}
+input{
+  border: 1px solid #2980B9;
+  margin: 3px;
+}
+
+.note{
+  color: chocolate;
+}
+
+.bld{
+  border: 2px solid cadetblue;
+  color: #f5f5f5;
+  background-color: #2980B9;
+  padding: 5px;
+  text-transform: capitalize;
+
+}
+.bld:hover{
+  background-color: #f5f5f5;
+  color: cadetblue;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.nav_ele{
+    display: flex;
+    gap: 5px;
+    text-decoration: none;
+    color: #2980b9;
+}
+
+.nav_ele:hover{
+    color: cadetblue;
+    transition: all 10ms ease;
+    text-decoration: underline;
 }
