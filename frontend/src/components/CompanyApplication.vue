@@ -1,8 +1,11 @@
 <script setup>
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 const users = ref([])
+const route = useRoute()
+const message = ref('')
 
 const fetchUsers = async () => {
     const token = localStorage.getItem('token')
@@ -15,6 +18,9 @@ const fetchUsers = async () => {
         const response = await axios.get(
             'http://127.0.0.1:5000/company_application',
             {
+                params: {
+                    search: (route.query.search || '').toString()
+                },
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -63,12 +69,49 @@ const approveApplication = async (user_id) => {
     }
 }
 
+const removeCompany = async (user_id) => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+        window.location.href = '/login'
+        return
+    }
+
+    try {
+        const response = await axios.delete(
+            `http://127.0.0.1:5000/admin/remove_company/${user_id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+
+        message.value = response.data?.message || 'company removed successfully'
+        fetchUsers()
+    } catch (err) {
+        if (err.response?.status === 401) {
+            localStorage.clear()
+            window.location.href = '/login'
+            return
+        }
+        message.value = err.response?.data?.message || 'failed to remove company'
+    }
+}
+
 onMounted(() => {
     fetchUsers()
 })
+
+watch(
+    () => route.query.search,
+    () => {
+        fetchUsers()
+    }
+)
 </script>
 
 <template>
+    <p v-if="message">{{ message }}</p>
     <p style="color: chocolate;">Total Number Of Company/Recruiter For Registration is {{ users.length }}</p>
 
     <div id="company_application">
@@ -91,7 +134,7 @@ onMounted(() => {
                 <td>{{ user.user_name }}</td>
                 <td>{{ user.user_email }}</td>
                 <td><button @click="approveApplication(user.user_id) ">approve</button></td>
-                <td><button class="dngr">remove</button> </td>
+                <td><button class="dngr" @click="removeCompany(user.user_id)">remove</button> </td>
             </tr>
             </tbody>
             </table>

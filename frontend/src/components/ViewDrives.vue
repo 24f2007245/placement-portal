@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
 const message = ref('')
@@ -7,6 +8,8 @@ const message = ref('')
 const drives = ref([])
 const drives_awaiting = ref([])
 const drives_approved = ref([])
+const router = useRouter()
+const route = useRoute()
 
 function subDescription(description) {
     if (!description) {
@@ -30,6 +33,9 @@ const fetchDrives = async () => {
         const response = await axios.get(
             'http://127.0.0.1:5000/company/drives',
             {
+                params: {
+                    search: (route.query.search || '').toString()
+                },
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -37,6 +43,8 @@ const fetchDrives = async () => {
         )
         
         drives.value = response.data
+        drives_awaiting.value = []
+        drives_approved.value = []
         for(let drive of drives.value){
             if(drive.status===1){
                 drives_approved.value.push(drive)
@@ -59,6 +67,17 @@ const fetchDrives = async () => {
 onMounted(() => {
     fetchDrives()
 })
+
+watch(
+    () => route.query.search,
+    () => {
+        fetchDrives()
+    }
+)
+
+async function viewApplications(drive_id) {
+    router.push(`/company/drive/${drive_id}/applications`)
+}
 </script>
 <template>
     <p v-if="message">{{ message }}</p>
@@ -106,6 +125,7 @@ onMounted(() => {
                     <th>CGPA</th>
                     <th>Deadline</th>
                     <th>Edit/change</th>
+                    <th>Applications</th>
                 </tr>
                 </thead>
 
@@ -119,6 +139,7 @@ onMounted(() => {
                     <td>{{ drive.cgpa }}</td>
                     <td>{{ drive.application_deadline  }}</td>
                     <td><button>edit/change</button></td>
+                    <td><button @click="viewApplications(drive.drive_id)">view applications</button></td>
                 </tr>
                 </tbody>
                 </table>

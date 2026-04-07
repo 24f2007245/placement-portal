@@ -1,14 +1,68 @@
 <script setup>
-const user_email=localStorage.getItem('email').toUpperCase()
-// const user_role= localStorage.getItem('role').toUpperCase()
-const user_name=localStorage.getItem('user_name').toUpperCase()
+
+// IMPORTS H_______________
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+// _____________________________END
+
+
+
+// variables______________________
+
+
+const user_email=(localStorage.getItem('email') || '').toUpperCase()
+const user_role= localStorage.getItem('role')
+
+const user_name=(localStorage.getItem('user_name') || '').toUpperCase()
+const route=useRoute()
+const router =useRouter()
+const search =ref((route.query.search || '').toString())
+
+//  ____________end
+
+
+
+
+// FUNCTIONS________________
+
+
+function applySearch() {
+    const query= { ...route.query }
+    if (search.value && search.value.trim() !== '') {
+        query.search = search.value.trim();
+    } else {
+        delete query.search;
+    }
+
+    router.push({ path: route.path, query: query })
+}
+
+watch(
+    () => route.query.search,
+    (value) => {
+        search.value = (value || '').toString()
+    }
+)
 </script>
 <template>
     <div id="main">
         <h1>Welcome {{ user_name }}</h1><h3>{{ user_email }}</h3>
         <!-- <label for="search"><h3>Search</h3></label> -->
-        <span><input type="search" id="search" placeholder="search"></span>
-        <span><button type="submit">find</button></span>
+        <span><input type="search" id="search" placeholder="search" v-model="search" @keyup.enter="applySearch"></span>
+        <span><button type="submit" @click="applySearch">find</button></span>
+        <p v-if="user_role==='admin'" class="note">NOTE: <br>
+            1.In the dashboard there are many section like drives, registered_company, registed_student; to search drives related things go into that section and then search with <code>drive_id,job_title,company_id ...</code>, for other section do the same <br>
+        </p>
+        <p v-if="user_role==='company'" class="note">NOTE: 
+            <br>1.In the dashboard there are many section like drives, registed_student; to search drives related things go into that section and then search with <code>drive_id,job_title,company_id ...</code>, for other section do the same <br>
+
+        </p>
+        <p v-if="user_role==='student'" class="note">NOTE: <br> 
+            1.In the dashboard there are many section like drives, to search drives related things go into that section and then search with <code>drive_id,job_title,company_id ...</code><br>
+        </p>
+
+ 
         
 
     </div>
@@ -46,6 +100,9 @@ input{
 }
 button{
     margin: 3px;
+    border: 2px solid cadetblue;
+    font-weight: bold;
+    text-decoration: underline;
 }
 
 </style>

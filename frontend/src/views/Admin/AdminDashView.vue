@@ -18,6 +18,7 @@ import Footer from '@/components/Footer.vue';
                 <RouterLink to="/admin/drives" class="nav_ele">drives</RouterLink>
                 <RouterLink to="/admin/company_application" class="nav_ele">approve_company</RouterLink>
                 <RouterLink to="/admin/registered_company" class="nav_ele">registered_company</RouterLink>
+                <RouterLink to="/admin/registered_students" class="nav_ele">registered_students</RouterLink>
             </div>
             <!-- <CountView/> -->
             <router-view />

@@ -15,8 +15,8 @@ class User(db.Model):
     role=db.relationship('Role', backref='users')
     status=db.Column(db.Integer, default=1)         #   1 active and 0 blacklist 2 pending
 
-    cp=db.relationship('CompanyProfile', backref='usr_c',uselist=False)
-    sp=db.relationship('StudentProfile', backref='usr_s',uselist=False)
+    cp=db.relationship('CompanyProfile', backref='usr_c',uselist=False,cascade="all, delete-orphan")
+    sp=db.relationship('StudentProfile', backref='usr_s',uselist=False,cascade="all, delete-orphan")
 
 class Role(db.Model):
     __tablename__='role'
@@ -27,7 +27,7 @@ class Role(db.Model):
 class PlacementsDrives(db.Model):
     __tablename__='placements_drives'
     drive_id=db.Column(db.Integer,nullable=False, primary_key=True, autoincrement=True)
-    company_id=db.Column(db.Integer,db.ForeignKey('company_profile.company_id') ,nullable=False)
+    company_id=db.Column(db.Integer,db.ForeignKey('company_profile.company_id', ondelete='CASCADE') ,nullable=False)
     job_title=db.Column(db.String(200), nullable=False)
     job_description=db.Column(db.String(2000))
     branch=db.Column(db.String(50))
@@ -37,6 +37,7 @@ class PlacementsDrives(db.Model):
     status=db.Column(db.Integer, default=0)        #0 / 1 approved / 0 waiting for admin action
 
     company=db.relationship('CompanyProfile', backref='drives')
+    applications=db.relationship('Applications', backref='drive_p', cascade="all, delete-orphan")
 
 
 
@@ -45,8 +46,8 @@ class PlacementsDrives(db.Model):
 class Applications(db.Model):
     __tablename__='applications'
     application_id=db.Column(db.Integer, primary_key=True,autoincrement=True)
-    student_id=db.Column(db.Integer, db.ForeignKey('student_profile.student_id'),nullable=False)
-    drive_id=db.Column(db.Integer,db.ForeignKey('placements_drives.drive_id'))
+    student_id=db.Column(db.Integer, db.ForeignKey('student_profile.student_id', ondelete='CASCADE'),nullable=False)
+    drive_id=db.Column(db.Integer,db.ForeignKey('placements_drives.drive_id', ondelete='CASCADE'), nullable=False)
     application_date=db.Column(db.Date)
     status=db.Column(db.Integer, default=0)        #0 Applied / 1 Shortlisted / 2 Selected / 3 Rejected
 
@@ -58,7 +59,7 @@ class StudentProfile(db.Model):
     address=db.Column(db.String(100))
     social_profile=db.Column(db.String(200))
 
-    application=db.relationship('Applications', backref='student_p')
+    application=db.relationship('Applications', backref='student_p', cascade="all, delete-orphan")
 
 
 class CompanyProfile(db.Model):

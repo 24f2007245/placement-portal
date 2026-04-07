@@ -1,7 +1,7 @@
 from flask_restful import Resource, Api        # pyright: ignore[reportMissingImports]
 from flask import request, jsonify, send_file                # pyright: ignore[reportMissingImports]
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity      # pyright: ignore[reportMissingImports]
-from models import db, User, Role, PlacementsDrives, StudentProfile 
+from models import db, User, Role, PlacementsDrives, StudentProfile, Applications, CompanyProfile 
 from datetime import datetime
 import os
 api=Api()
@@ -12,19 +12,6 @@ def unique_str():
     str=datetime.now().strftime('%Y%m%d%H%M%S%f')
     return str
 
-
-def serialize_drive(drive):
-    return {
-        "drive_id": drive.drive_id,
-        "company_id": drive.company_id,
-        "job_title": drive.job_title,
-        "job_description": drive.job_description,
-        "branch": drive.branch,
-        "cgpa": drive.cgpa,
-        "year": drive.year,
-        "application_deadline": drive.application_deadline.isoformat() if drive.application_deadline else None,
-        "status": drive.status
-    }
 
 #decorder for Admin
 
@@ -127,9 +114,9 @@ class PlacementDrive(Resource):
             return {"message": "application_deadline is required"}, 400
 
         try:
-            deadline_date = datetime.strptime(deadline_str, "%d/%m/%Y").date()
+            deadline_date = datetime.strptime(deadline_str, "%Y-%m-%d").date()
         except ValueError:
-            return {"message": "application_deadline must be in DD/MM/YYYY format"}, 400
+            return {"message": "application_deadline must be in YYYY-MM-DD format"}, 400
 
         drive_data=PlacementsDrives(
             company_id=current_user.user_id,
@@ -151,12 +138,86 @@ class PlacementDrive(Resource):
             drive = PlacementsDrives.query.get(drive_id)
             if not drive:
                 return {"message": "drive not found"}, 404
-            return serialize_drive(drive), 200
+            return {
+                "drive_id": drive.drive_id,
+                "company_id": drive.company_id,
+                "job_title": drive.job_title,
+                "job_description": drive.job_description,
+                "branch": drive.branch,
+                "cgpa": drive.cgpa,
+                "year": drive.year,
+                "application_deadline": drive.application_deadline.isoformat() if drive.application_deadline else None,
+                "status": drive.status
+            }, 200
 
         data = PlacementsDrives.query.all()
-        result = [serialize_drive(drive) for drive in data]
+        result = []
+        for drive in data:
+            result.append({
+                "drive_id": drive.drive_id,
+                "company_id": drive.company_id,
+                "job_title": drive.job_title,
+                "job_description": drive.job_description,
+                "branch": drive.branch,
+                "cgpa": drive.cgpa,
+                "year": drive.year,
+                "application_deadline": drive.application_deadline.isoformat() if drive.application_deadline else None,
+                "status": drive.status
+            })
+        
+        search = request.args.get('search', '').strip().lower()
+        if search:
+            result = [
+                row for row in result
+                if search in str(row.get('drive_id', '')).lower()
+                or search in str(row.get('company_id', '')).lower()
+                or search in str(row.get('job_title', '')).lower()
+                or search in str(row.get('branch', '')).lower()
+            ]
+        
         return jsonify(result)
 api.add_resource(PlacementDrive,'/drives','/drives/<int:drive_id>')
+
+
+class ApplyPlacementDrive(Resource):
+    @jwt_required()
+    def post(self, drive_id):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'student':
+            return {"message": "not authorized"}, 403
+
+        drive = PlacementsDrives.query.get(drive_id)
+        if not drive:
+            return {"message": "drive not found"}, 404
+
+        if drive.status != 1:
+            return {"message": "drive is not approved yet"}, 400
+
+        if drive.application_deadline and drive.application_deadline < datetime.now().date():
+            return {"message": "application deadline is over"}, 400
+
+        if not current_user.sp:
+            return {"message": "update student profile before applying"}, 400
+
+        is_already_applied = Applications.query.filter_by(
+            student_id=current_user.user_id,
+            drive_id=drive_id
+        ).first()
+        if is_already_applied:
+            return {"message": "already applied"}, 409
+
+        app_data = Applications(
+            student_id=current_user.user_id,
+            drive_id=drive_id,
+            application_date=datetime.now().date(),
+        )
+        db.session.add(app_data)
+        db.session.commit()
+        return {"message": "applied successfully"}, 200
+
+
+api.add_resource(ApplyPlacementDrive, '/apply_drive/<int:drive_id>')
 
 
 class ApproveDrive(Resource):
@@ -188,6 +249,27 @@ class ApproveDrive(Resource):
         return {'message':'drive updated successfully'},200
 api.add_resource(ApproveDrive,'/approve_drive/<int:drive_id>')
 
+
+class RemoveDrive(Resource):
+    @jwt_required()
+    def delete(self, drive_id):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'admin':
+            return {'message': 'not authorized'}, 403
+
+        drive = PlacementsDrives.query.get(drive_id)
+        if not drive:
+            return {'message': 'drive not found'}, 404
+
+        Applications.query.filter_by(drive_id=drive_id).delete()
+        db.session.delete(drive)
+        db.session.commit()
+        return {'message': 'drive removed successfully'}, 200
+
+
+api.add_resource(RemoveDrive, '/admin/remove_drive/<int:drive_id>')
+
 #____________________________END of placement drive section
 
 
@@ -207,11 +289,216 @@ class CompanyDrives(Resource):
             return {"message": "not authorized"}, 403
 
         data = PlacementsDrives.query.filter_by(company_id=current_user.user_id).all()
-        result = [serialize_drive(drive) for drive in data]
+        result = []
+        for drive in data:
+            result.append({
+                "drive_id": drive.drive_id,
+                "company_id": drive.company_id,
+                "job_title": drive.job_title,
+                "job_description": drive.job_description,
+                "branch": drive.branch,
+                "cgpa": drive.cgpa,
+                "year": drive.year,
+                "application_deadline": drive.application_deadline.isoformat() if drive.application_deadline else None,
+                "status": drive.status
+            })
+
+        search = request.args.get('search', '').strip().lower()
+        if search:
+            result = [
+                row for row in result
+                if search in str(row.get('drive_id', '')).lower()
+                or search in str(row.get('job_title', '')).lower()
+                or search in str(row.get('job_description', '')).lower()
+                or search in str(row.get('branch', '')).lower()
+                or search in str(row.get('year', '')).lower()
+                or search in str(row.get('cgpa', '')).lower()
+                or search in str(row.get('application_deadline', '')).lower()
+            ]
+
         return jsonify(result)
 
 
 api.add_resource(CompanyDrives, '/company/drives')
+
+
+class CompanyDriveApplications(Resource):
+    @jwt_required()
+    def get(self, drive_id):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'company':
+            return {"message": "not authorized"}, 403
+
+        drive = PlacementsDrives.query.get(drive_id)
+        if not drive:
+            return {"message": "drive not found"}, 404
+
+        if drive.company_id != current_user.user_id:
+            return {"message": "not authorized"}, 403
+
+        applications = Applications.query.filter_by(drive_id=drive_id).all()
+        result = []
+        for app in applications:
+            student_user = User.query.get(app.student_id)
+            student_profile = StudentProfile.query.get(app.student_id)
+            result.append({
+                "application_id": app.application_id,
+                "drive_id": app.drive_id,
+                "student_id": app.student_id,
+                "student_name": student_user.user_name if student_user else None,
+                "student_email": student_user.user_email if student_user else None,
+                "resume_path": student_profile.resume_path if student_profile else None,
+                "application_date": app.application_date.isoformat() if app.application_date else None,
+                "status": app.status,
+            })
+
+        search = request.args.get('search', '').strip().lower()
+        if search:
+            result = [
+                row for row in result
+                if search in str(row.get('application_id', '')).lower()
+                or search in str(row.get('student_id', '')).lower()
+                or search in str(row.get('student_name', '')).lower()
+                or search in str(row.get('student_email', '')).lower()
+                or search in str(row.get('application_date', '')).lower()
+                or search in str(row.get('status', '')).lower()
+            ]
+
+        return jsonify(result)
+
+
+api.add_resource(CompanyDriveApplications, '/company/drive_applications/<int:drive_id>')
+
+
+class CompanyApplicationStatus(Resource):
+    @jwt_required()
+    def patch(self, application_id):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'company':
+            return {"message": "not authorized"}, 403
+
+        application = Applications.query.get(application_id)
+        if not application:
+            return {"message": "application not found"}, 404
+
+        drive = PlacementsDrives.query.get(application.drive_id)
+        if not drive:
+            return {"message": "drive not found"}, 404
+
+        if drive.company_id != current_user.user_id:
+            return {"message": "not authorized"}, 403
+
+        data = request.get_json() or {}
+        if "status" not in data:
+            return {"message": "status is required"}, 400
+
+        try:
+            status = int(data["status"])
+        except (TypeError, ValueError):
+            return {"message": "status must be an integer"}, 400
+
+        if status not in (1, 3):
+            return {"message": "invalid status"}, 400
+
+        application.status = status
+        db.session.commit()
+        return {"message": "application status updated successfully"}, 200
+
+
+api.add_resource(CompanyApplicationStatus, '/company/application_status/<int:application_id>')
+
+
+class CompanyApplicationResume(Resource):
+    @jwt_required()
+    def get(self, application_id):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'company':
+            return {"message": "not authorized"}, 403
+
+        application = Applications.query.get(application_id)
+        if not application:
+            return {"message": "application not found"}, 404
+
+        drive = PlacementsDrives.query.get(application.drive_id)
+        if not drive:
+            return {"message": "drive not found"}, 404
+
+        if drive.company_id != current_user.user_id:
+            return {"message": "not authorized"}, 403
+
+        student_profile = StudentProfile.query.get(application.student_id)
+        if not student_profile or not student_profile.resume_path:
+            return {"message": "resume not found"}, 404
+
+        resume_path = student_profile.resume_path
+        if not os.path.exists(resume_path):
+            return {"message": "resume file missing on server"}, 404
+
+        return send_file(
+            resume_path,
+            mimetype='application/pdf',
+            as_attachment=False,
+            download_name=f'resume_{application.student_id}.pdf'
+        )
+
+
+api.add_resource(CompanyApplicationResume, '/company/application_resume/<int:application_id>')
+
+
+class CompanyShortlistedStudents(Resource):
+    @jwt_required()
+    def get(self):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'company':
+            return {"message": "not authorized"}, 403
+
+        drives = PlacementsDrives.query.filter_by(company_id=current_user.user_id).all()
+        drive_ids = [drive.drive_id for drive in drives]
+        if not drive_ids:
+            return jsonify([])
+
+        apps = Applications.query.filter(
+            Applications.drive_id.in_(drive_ids),
+            Applications.status == 1
+        ).all()
+
+        result = []
+        for app in apps:
+            drive = PlacementsDrives.query.get(app.drive_id)
+            student_user = User.query.get(app.student_id)
+            student_profile = StudentProfile.query.get(app.student_id)
+            result.append({
+                "application_id": app.application_id,
+                "drive_id": app.drive_id,
+                "job_title": drive.job_title if drive else None,
+                "student_id": app.student_id,
+                "student_name": student_user.user_name if student_user else None,
+                "student_email": student_user.user_email if student_user else None,
+                "resume_path": student_profile.resume_path if student_profile else None,
+                "application_date": app.application_date.isoformat() if app.application_date else None,
+                "status": app.status,
+            })
+
+        search = request.args.get('search', '').strip().lower()
+        if search:
+            result = [
+                row for row in result
+                if search in str(row.get('application_id', '')).lower()
+                or search in str(row.get('drive_id', '')).lower()
+                or search in str(row.get('job_title', '')).lower()
+                or search in str(row.get('student_id', '')).lower()
+                or search in str(row.get('student_name', '')).lower()
+                or search in str(row.get('student_email', '')).lower()
+            ]
+
+        return jsonify(result)
+
+
+api.add_resource(CompanyShortlistedStudents, '/company/shortlisted_students')
 
 
 class CompanyApplication(Resource):
@@ -256,6 +543,38 @@ class RegisteredCompany(Resource):
 api.add_resource(RegisteredCompany,'/admin/registered_company')
 
 
+class RemoveCompany(Resource):
+    @jwt_required()
+    def delete(self, company_id):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'admin':
+            return {'message': 'not authorized'}, 403
+
+        user = User.query.get(company_id)
+        if not user:
+            return {'message': 'company not found'}, 404
+
+        company_role = Role.query.filter_by(name='company').first()
+        if company_role and user.role_id != company_role.id:
+            return {'message': 'invalid company user'}, 400
+
+        company_profile = CompanyProfile.query.get(company_id)
+        if company_profile:
+            drives = PlacementsDrives.query.filter_by(company_id=company_id).all()
+            for drive in drives:
+                Applications.query.filter_by(drive_id=drive.drive_id).delete()
+                db.session.delete(drive)
+            db.session.delete(company_profile)
+
+        db.session.delete(user)
+        db.session.commit()
+        return {'message': 'company removed successfully'}, 200
+
+
+api.add_resource(RemoveCompany, '/admin/remove_company/<int:company_id>')
+
+
 #______________________END of Company
 
 
@@ -282,7 +601,36 @@ class Students(Resource):
         
         return jsonify(result)
     
-api.add_resource(Students,'/students/all')
+api.add_resource(Students,'/admin/registered_students')
+
+
+class RemoveStudent(Resource):
+    @jwt_required()
+    def delete(self, student_id):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'admin':
+            return {'message': 'not authorized'}, 403
+
+        user = User.query.get(student_id)
+        if not user:
+            return {'message': 'student not found'}, 404
+
+        student_role = Role.query.filter_by(name='student').first()
+        if student_role and user.role_id != student_role.id:
+            return {'message': 'invalid student user'}, 400
+
+        Applications.query.filter_by(student_id=student_id).delete()
+        student_profile = StudentProfile.query.get(student_id)
+        if student_profile:
+            db.session.delete(student_profile)
+
+        db.session.delete(user)
+        db.session.commit()
+        return {'message': 'student removed successfully'}, 200
+
+
+api.add_resource(RemoveStudent, '/admin/remove_student/<int:student_id>')
 
 
  
@@ -395,6 +743,33 @@ class StudentResume(Resource):
 api.add_resource(StudentResume, '/student_profile/resume')
 
 
+class StudentApplications(Resource):
+    @jwt_required()
+    def get(self):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'student':
+            return {"message": "not authorized"}, 403
+
+        apps = Applications.query.filter_by(student_id=current_user.user_id).all()
+        result = []
+        for app in apps:
+            drive = PlacementsDrives.query.get(app.drive_id)
+            result.append({
+                "application_id": app.application_id,
+                "drive_id": app.drive_id,
+                "job_title": drive.job_title if drive else None,
+                "company_id": drive.company_id if drive else None,
+                "application_date": app.application_date.isoformat() if app.application_date else None,
+                "status": app.status,
+            })
+
+        return jsonify(result)
+
+
+api.add_resource(StudentApplications, '/student/applications')
+
+
 
 
 #______________________END Student
@@ -426,6 +801,38 @@ class ApproveApplication(Resource):
         return{"message":"updated successfully"},200
 
 api.add_resource(ApproveApplication,"/approve_application/<int:company_id>")
+
+
+class DriveApplications(Resource):
+    @jwt_required()
+    def get(self, drive_id):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'admin':
+            return {"message": "not authorized"}, 403
+
+        drive = PlacementsDrives.query.get(drive_id)
+        if not drive:
+            return {"message": "drive not found"}, 404
+
+        applications = Applications.query.filter_by(drive_id=drive_id).all()
+        result = []
+        for app in applications:
+            student_user = User.query.get(app.student_id)
+            student_profile = StudentProfile.query.get(app.student_id)
+            result.append({
+                "application_id": app.application_id,
+                "drive_id": app.drive_id,
+                "student_id": app.student_id,
+                "student_name": student_user.user_name if student_user else None,
+                "student_email": student_user.user_email if student_user else None,
+                "resume_path": student_profile.resume_path if student_profile else None,
+                "application_date": app.application_date.isoformat() if app.application_date else None,
+                "status": app.status,
+            })
+
+
+api.add_resource(DriveApplications, '/admin/drive_applications/<int:drive_id>')
 
 
 

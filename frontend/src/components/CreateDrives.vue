@@ -43,6 +43,7 @@ async function create_drive(){
             window.location.href = '/login'
             return
         }
+        message.value = error.response?.data?.message || 'Failed to create drive'
         
     }
 }
@@ -62,23 +63,23 @@ async function create_drive(){
             <!-- <h1>Create Placement Drive</h1> -->
             <form method="POST" @submit.prevent="create_drive">
 
-                <label for="job_title">Job Title:</label>
+                <label for="job_title">Job Title:</label><br>
                 <input type="text" v-model="formData.job_title" id="job_title" placeholder="job title" required autocapitalize ><br>
 
                 <label for="job_description">Job Description:</label><br>
                 <textarea type="text" v-model="formData.job_description" id="job_description"
                     placeholder="job description" required rows="5" cols="50" ></textarea><br>
 
-                <label for="branch">Branch:</label>
-                <input type="text" v-model="formData.branch" id="branch" placeholder="branch">
+                <label for="branch">Branch:</label><br>
+                <input type="text" v-model="formData.branch" id="branch" placeholder="branch"><br>
 
-                <label for="cgpa">CGPA:</label>
+                <label for="cgpa">CGPA:</label><br>
                 <input type="number" v-model="formData.cgpa" id="cgpa" placeholder="cgpa" step="0.1" required><br>
 
-                <label for="year">Year:</label>
+                <label for="year">Year:</label><br>
                 <input type="number" v-model="formData.year" id="year" min="2000" max="2030" step="1" value="2025" required><br>
 
-                <label for="application_deadline">Application Deadline:</label>
+                <label for="application_deadline">Application Deadline:</label><br>
                 <input type="date" v-model="formData.application_deadline" id="application_deadline" required><br><br>
                 <button class="fix-row3">create</button>
             </form>
@@ -106,7 +107,18 @@ h1{
     justify-content: center;
 }
 input{
+    margin: 1px;
     padding: 5px;
     border: 1px solid #2980b9;
+    width: 350px;
+    line-height: 30px;
+}
+textarea{
+    margin: 1px;
+    border: 1px solid #2980b9;
+}
+button{
+    border: 2px solid cadetblue;
+    font-weight: bold;
 }
 </style>

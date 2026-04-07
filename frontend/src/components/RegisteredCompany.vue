@@ -1,12 +1,18 @@
 <script setup>
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 const rcusers = ref([])
+const route = useRoute()
+const message = ref('')
 const fetchUsers = async () => {
     try {
         const response = await axios.get(
             'http://127.0.0.1:5000/admin/registered_company',
             {
+                params: {
+                    search: (route.query.search || '').toString()
+                },
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -23,13 +29,45 @@ function blackList(){
     return
 }
 
+async function removeCompany(user_id) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return
+    }
+
+    try {
+        const response = await axios.delete(
+            `http://127.0.0.1:5000/admin/remove_company/${user_id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+        message.value = response.data?.message || 'company removed successfully'
+        fetchUsers()
+    } catch (err) {
+        message.value = err.response?.data?.message || 'failed to remove company'
+    }
+}
+
 onMounted(() => {
     fetchUsers()
 })
+
+watch(
+    () => route.query.search,
+    () => {
+        fetchUsers()
+    }
+)
 </script>
 
 <template>
     <div id="registered_company">
+        <p v-if="message">{{ message }}</p>
         <p style="color: chocolate;">Total Number Of Registered Company/Recruiter is {{ rcusers.length }}</p>
 
         <h1>Registered Companys</h1><br>
@@ -55,7 +93,7 @@ onMounted(() => {
                         </button>
                     </td>
                     <td>
-                        <button class="dngr">remove</button>
+                        <button class="dngr" @click="removeCompany(user.user_id)">remove</button>
                     </td>
                 </tr>
             </tbody>
@@ -63,19 +101,7 @@ onMounted(() => {
     </div>
 </template>
 <style>
-table {
-    border-collapse: collapse;
-    /* color: gray; */
-}
 
-td {
-    color: gray;
-    padding: 5px;
-}
-
-th {
-    padding: 5px;
-}
 
 #registered_company {
     margin-top: 30px;

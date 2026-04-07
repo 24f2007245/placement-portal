@@ -5,6 +5,7 @@ import { ref, onMounted } from 'vue'
 
 
 const rsusers = ref([])
+const message = ref('')
 const fetchStudent = async () => {
 
     try {
@@ -23,6 +24,34 @@ const fetchStudent = async () => {
     }
 }
 
+// function blackList(){
+//     return
+// }
+
+async function removeStudent(student_id) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return
+    }
+
+    try {
+        const response = await axios.delete(
+            `http://127.0.0.1:5000/admin/remove_student/${student_id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+        message.value = response.data?.message || 'student removed successfully'
+        fetchStudent()
+    } catch (err) {
+        message.value = err.response?.data?.message || 'failed to remove student'
+    }
+}
+
 
 onMounted(() => {
     fetchStudent()
@@ -30,13 +59,14 @@ onMounted(() => {
 </script>
 <template>
     <div id="registered_students">
+                <p v-if="message">{{ message }}</p>
                 <h1>Registered Students</h1><br>
                 <table>
                     <thead><tr>
                         <th>Student ID</th>
                         <th>Student Name</th>
                         <th>Student Email</th>
-                        <th>Blacklist</th>
+                        <!-- <th>Blacklist</th> -->
                         <th>Remove</th>
                     </tr></thead>
 
@@ -44,25 +74,15 @@ onMounted(() => {
                         <td>{{ student.user_id }}</td>
                         <td>{{ student.user_name }}</td>
                         <td>{{ student.user_email }}</td>
-                        <td ><button class="dngr" @click="blackLIst(student.user_id)">blacklist</button></td>
-                        <td><button class="dngr"> remove</button></td>
+                        <!-- <td ><button class="dngr" @click="blackList(student.user_id)">blacklist</button></td> -->
+                        <td><button class="dngr" @click="removeStudent(student.user_id)"> remove</button></td>
                     </tr></tbody>
                 </table>
             </div>
 </template>
 
 <style scoped>
-table{
-    border-collapse: collapse;
-    color: gray;
- }
- td{
-    color: gray;
-    padding: 5px;
- }
- th{
-    padding: 5px;
- }
+
 
  #registered_company{
     margin-top: 30px;

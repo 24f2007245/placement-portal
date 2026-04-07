@@ -14,6 +14,7 @@ import Welcome from '@/components/SideColumn.vue';
             <div id="nav_link">
                 <RouterLink to="/company/view_drives" class="nav_element">view_drives</RouterLink>
                 <RouterLink to="/company/create_drives" class="nav_element">create_drives</RouterLink>
+                <RouterLink to="/company/shortlisted_students" class="nav_element">shortlisted_students</RouterLink>
             </div>
             <router-view />
             <br><br><br>

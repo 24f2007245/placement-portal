@@ -9,6 +9,10 @@ import CreateDrives from '@/components/CreateDrives.vue'
 import ViewDrives from '@/components/ViewDrives.vue'
 import DrivesDetails from '@/components/DrivesDetails.vue'
 import StudentProfile from '@/components/StudentProfile.vue'
+import StudentApplications from '@/components/StudentApplications.vue'
+import CompanyDriveApplications from '@/components/CompanyDriveApplications.vue'
+import ShortlistedStudents from '@/components/ShortlistedStudents.vue'
+import RegisteredStudent from '@/components/RegisteredStudent.vue'
 
 
 const router = createRouter({
@@ -35,7 +39,7 @@ const router = createRouter({
 
 
 
-    // admin
+    // ADMIN ROUTES H ___________________________
     {
       path: '/admin',
       name: 'admin',
@@ -58,13 +62,17 @@ const router = createRouter({
           component: RegisteredCompany
         },
         {
+          path: 'registered_students',
+          component: RegisteredStudent
+        },
+        {
           path: 'drive/:id',
           component:DrivesDetails
         }
       ]
     },
 
-    // company
+    // COMPANY HH_______________________
     {
       path: '/company',
       name: 'company',
@@ -83,8 +91,16 @@ const router = createRouter({
           component: ViewDrives
         },
         {
+          path: 'shortlisted_students',
+          component: ShortlistedStudents
+        },
+        {
           path: 'create_drives',
           component: CreateDrives
+        },
+        {
+          path: 'drive/:id/applications',
+          component: CompanyDriveApplications
         },
         {
           path: 'drive/:id',
@@ -92,15 +108,27 @@ const router = createRouter({
         }
       ]
     },
+
+// STUDENT ROUTE H ______________________
+
+    {
+      path:'/student',
+      name: 'student',
+      redirect:'/student/drives'
+    },
     {
       path: '/student',
-      name: 'student',
+      
       component: () => import('../views/Student/StuDashView.vue'),
       
       children: [
         {
           path:'profile',
           component:StudentProfile
+        },
+        {
+          path:'applications',
+          component:StudentApplications
         },
         {
           path:'drives',

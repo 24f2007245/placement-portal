@@ -5,10 +5,20 @@ import axios from 'axios'
 import LogedinNav from './LogedinNav.vue'
 
 const drive_detail=ref(null)
+const applications = ref([])
 const message = ref('')
 const router=useRouter()
 const route=useRoute()
 const drive_id=route.params.id
+const role = localStorage.getItem('role')
+
+function statusText(status) {
+  if (status === 0) return 'Applied'
+  if (status === 1) return 'Shortlisted'
+  if (status === 2) return 'Selected'
+  if (status === 3) return 'Rejected'
+  return 'Unknown'
+}
 
 async function fetchDriveDetails(){
     const token = localStorage.getItem('token')
@@ -38,8 +48,31 @@ async function fetchDriveDetails(){
     }
 }
 
+async function fetchApplications() {
+    const token = localStorage.getItem('token')
+    if (!token || role !== 'admin') {
+        return
+    }
+
+    try {
+        const response = await axios.get(
+            `http://127.0.0.1:5000/admin/drive_applications/${drive_id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+        applications.value = response.data
+    } catch (error) {
+        console.error(error)
+        applications.value = []
+    }
+}
+
 onMounted(() => {
     fetchDriveDetails()
+    fetchApplications()
 })
 
 </script>
@@ -67,6 +100,32 @@ onMounted(() => {
             <p>Year:{{ drive_detail.year }}</p>
             <p>Deadline:{{ drive_detail.application_deadline }}</p>
         </div>
+        <hr>
+        <div v-if="role === 'admin' && applications.length > 0" id="applications_section">
+            <h2>Student Applications ({{ applications.length }})</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Application Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="app in applications" :key="app.application_id">
+                        <td>{{ app.student_id }}</td>
+                        <td>{{ app.student_name }}</td>
+                        <td>{{ app.student_email }}</td>
+                        <td>{{ app.application_date }}</td>
+                        <td>{{ statusText(app.status) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p v-else-if="role === 'admin'" style="color: orange; margin-top: 20px;">No applications yet</p>
     </div>
 
 </template>
@@ -85,6 +144,15 @@ onMounted(() => {
     border-radius: 8px; */
     /* background-color: #f5f5f5; */
 }
+
+#applications_section{
+    margin-top: 40px;
+    padding: 20px;
+    /* border: 1px solid #ddd; */
+    /* border-radius: 8px; */
+}
+
+
 p{
     color: gray;
 }

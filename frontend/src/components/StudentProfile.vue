@@ -140,7 +140,7 @@ fetchStudents()
 
             <label for="file">Upload Resume</label><br />
             <input type="file" id="file" accept=".pdf" placeholder="pdf files" @change="onFileChange" >
-            <button type="button" @click="downloadResume">download current resume</button>
+            <p @click="downloadResume" class="spl">download current resume</p>
             <p class="note">*Only PDF files are acceptable.</p><br />
 
             <label for="phone">Phone No</label><br />
@@ -187,4 +187,14 @@ textarea {
 .msg {
     color: chocolate;
 }
+.spl{
+    text-decoration: underline;
+    color: #2980b9;
+}
+.spl:hover{
+    color: cadetblue;
+    /* transform: scale(1.1); */
+    /* text-decoration: overline; */
+}
+
 </style>

@@ -1,14 +1,16 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
 const message = ref('')
 const drives = ref([])
 const approved_drive=ref([])
 const awaiting_drive=ref([])
+const applied_drive_ids = ref([])
 const role=localStorage.getItem('role')
 const router=useRouter()
+const route=useRoute()
 
 function subDescription(des){
     if (des.length > 50){
@@ -19,9 +21,36 @@ function subDescription(des){
     }
 }
 
+async function fetchStudentApplications() {
+    const token = localStorage.getItem('token')
+    if (!token || !isStudent()) {
+        return
+    }
+
+    try {
+        const response = await axios.get('http://127.0.0.1:5000/student/applications', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        applied_drive_ids.value = response.data.map(app => app.drive_id)
+    } catch (error) {
+        applied_drive_ids.value = []
+    }
+}
+
+function isApplied(drive_id) {
+    return applied_drive_ids.value.includes(drive_id)
+}
+
 function isAdmin() {
     return role === 'admin'
   }
+
+function isStudent() {
+    return role === 'student'
+}
   
 
 const fetchDrives = async () => {
@@ -35,8 +64,10 @@ const fetchDrives = async () => {
     try {
         const response = await axios.get(
             'http://127.0.0.1:5000/drives',
-            
             {
+                params: {
+                    search: (route.query.search || '').toString()
+                },
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -92,17 +123,92 @@ async function approveDrive(drive_id){
     }
 }
 
+async function removeDrive(drive_id) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return
+    }
+
+    try {
+        const response = await axios.delete(
+            `http://127.0.0.1:5000/admin/remove_drive/${drive_id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+
+        message.value = response.data?.message || 'drive removed successfully'
+        fetchDrives()
+    } catch (error) {
+        if (error.response?.status === 401 || error.response?.status === 422) {
+            localStorage.clear()
+            window.location.href = '/login'
+            return
+        }
+        message.value = error.response?.data?.message || 'failed to remove drive'
+    }
+}
+
+async function applyDrive(drive_id) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return
+    }
+
+    try {
+        const response = await axios.post(
+            `http://127.0.0.1:5000/apply_drive/${drive_id}`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        )
+
+        message.value = response.data?.message || 'applied successfully'
+        applied_drive_ids.value.push(drive_id)
+    } catch (error) {
+        if (error.response?.status === 401 || error.response?.status === 422) {
+            localStorage.clear()
+            window.location.href = '/login'
+            return
+        }
+        if (error.response?.status === 409) {
+            message.value = 'already applied'
+            if (!isApplied(drive_id)) {
+                applied_drive_ids.value.push(drive_id)
+            }
+            return
+        }
+        message.value = error.response?.data?.message || 'failed to apply'
+    }
+}
+
 onMounted(() => {
     fetchDrives()
+    fetchStudentApplications()
 })
+
+watch(
+    () => route.query.search,
+    () => {
+        fetchDrives()
+    }
+)
 </script>
 <template>
+            <div v-if="message" style="padding: 10px; background-color: #f5f5f5; color: cadetblue; text-decoration: overline;"><p>{{ message }}</p></div>
     
             <div id="awaiting_drive" v-if="isAdmin()">
                 <p style="color: chocolate;">Total Number Of Ongoing Drives is {{ approved_drive.length }}</p>
                 <p style="color: chocolate;">Total Number Of Awaiting Drives is {{ awaiting_drive.length }}</p>
-
-<div v-if="message" style="padding: 10px; background-color: #f5f5f5; color: cadetblue; text-decoration: overline;"><p >{{ message }}</p></div>
                 <h1>Awaiting Drives</h1><br>
                 <table v-if="awaiting_drive.length>0">
                 <thead>
@@ -136,7 +242,7 @@ onMounted(() => {
 
                     
                     <td ><button @click="approveDrive(drive.drive_id)">approve</button></td>
-                    <td ><button class="dngr">remove</button></td>
+                    <td ><button class="dngr" @click="removeDrive(drive.drive_id)">remove</button></td>
                     
                     
                 </tr>
@@ -163,7 +269,7 @@ onMounted(() => {
                         <th >Remove</th>
                     </template>
                     <template v-else>
-                        <th>Apply</th>
+                        <th v-if="isStudent()">Apply</th>
                     </template>
                     
                 </tr>
@@ -182,10 +288,18 @@ onMounted(() => {
 
                     <template v-if="isAdmin()">
                         
-                        <td ><button class="dngr">remove</button></td>
+                        <td ><button class="dngr" @click="removeDrive(dri.drive_id)">remove</button></td>
                     </template>
-                    <template v-else>
-                        <th><button>apply</button></th>
+                    <template v-else-if="isStudent()">
+                        <th>
+                            <button
+                                @click="applyDrive(dri.drive_id)"
+                                :disabled="isApplied(dri.drive_id)"
+                                :class="{ 'faded_btn': isApplied(dri.drive_id) }"
+                            >
+                                {{ isApplied(dri.drive_id) ? 'applied' : 'apply' }}
+                            </button>
+                        </th>
                     </template>
                     
                 </tr>
@@ -195,12 +309,7 @@ onMounted(() => {
             </div>
 </template>
 <style scoped>
-#approved_drives{
-    color: #2980B9;
-    /* overflow: hidden; */
-    /* margin-top: 30px;
-    margin-right: 20px; */
-}
+
 @media(max-width:770px){
     #awaiting_drive{
         padding: 20px;
@@ -209,6 +318,12 @@ onMounted(() => {
         padding: 20px;
     }
 }
+
+.faded_btn{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 
 
 </style>
