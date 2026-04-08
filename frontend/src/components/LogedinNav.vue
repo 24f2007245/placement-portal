@@ -13,17 +13,19 @@
 </template>
 
 <script setup>
- const user_email=localStorage.getItem('email');
- const user_role=localStorage.getItem('role');
 
- function logout(){
+const user_email=localStorage.getItem('email');
+const user_role=localStorage.getItem('role');
+
+function logout(){
   localStorage.clear();
   window.location.href="/login";
- }
- function indicate_index(){
+}
+
+function indicate_index(){
   window.location.href='/';
- }
- 
+}
+
 </script>
 
 <style scoped>

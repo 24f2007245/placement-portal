@@ -83,7 +83,7 @@ async function downloadResume() {
             window.location.href = '/login'
             return
         }
-        message.value = err.response?.data?.message || 'Failed to download resume'
+        message.value = 'Failed to download resume'
         console.error(err)
     }
 }

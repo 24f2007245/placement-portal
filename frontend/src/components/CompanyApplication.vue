@@ -1,4 +1,6 @@
 <script setup>
+
+
 import axios from 'axios'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -9,12 +11,11 @@ const message = ref('')
 
 const fetchUsers = async () => {
     const token = localStorage.getItem('token')
-    if (!token) {
+    if (!token){
         window.location.href = '/login'
-        return
-    }
+        return}
 
-    try {
+    try{
         const response = await axios.get(
             'http://127.0.0.1:5000/company_application',
             {
@@ -38,14 +39,16 @@ const fetchUsers = async () => {
     }
 }
 
+
+
 const approveApplication = async (user_id) => {
     const token = localStorage.getItem('token')
-    if (!token) {
+    if(!token) {
         window.location.href = '/login'
         return
     }
 
-    try {
+    try{
         const response = await axios.patch(
             `http://127.0.0.1:5000/approve_application/${user_id}`,
             { status: 1 },
@@ -63,20 +66,18 @@ const approveApplication = async (user_id) => {
         if (err.response?.status === 401) {
             localStorage.clear()
             window.location.href = '/login'
-            return
-        }
+            return}
         console.log(err.response ? err.response.data : err)
     }
 }
 
 const removeCompany = async (user_id) => {
     const token = localStorage.getItem('token')
-    if (!token) {
+    if(!token) {
         window.location.href = '/login'
-        return
-    }
+        return}
 
-    try {
+    try{
         const response = await axios.delete(
             `http://127.0.0.1:5000/admin/remove_company/${user_id}`,
             {
@@ -88,7 +89,7 @@ const removeCompany = async (user_id) => {
 
         message.value = response.data?.message || 'company removed successfully'
         fetchUsers()
-    } catch (err) {
+    } catch(err) {
         if (err.response?.status === 401) {
             localStorage.clear()
             window.location.href = '/login'
@@ -152,11 +153,7 @@ watch(
     border: 1px solid #2980B9;
     padding: 30px;
 } */
- table{
-    border-collapse: collapse;
-    /* color: gray; */
- }
- 
+
  .dngr{
     color: red;
  }

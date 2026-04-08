@@ -1,19 +1,24 @@
 <script setup>
+
+
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 const message = ref('')
 const drives = ref([])
 
+
+// fetching drives ________________
+// with get request
+
 const fetchDrives = async () => {
     const token = localStorage.getItem('token')
-    if (!token) {
+    if(!token){
         localStorage.clear()
         window.location.href = '/login'
-        return
-    }
+        return}
 
-    try {
+    try{
         const response = await axios.get(
             'http://127.0.0.1:5000/drives',
             {
@@ -34,6 +39,8 @@ const fetchDrives = async () => {
         message.value = "Failed to load drives"
     }
 }
+
+// END of fetch drives with get_______________________
 
 onMounted(() => {
     fetchDrives()
@@ -71,12 +78,5 @@ onMounted(() => {
     color: #2980B9;
     margin-top: 30px;
 }
-td{
-    color: gray;
-    padding: 10px;
-}
-th{
-    color:#2980B9;
-    padding: 10px;
-}
+
 </style>

@@ -6,7 +6,7 @@
 
 <style scoped>
 footer {
-    margin-top: 30px;
+  margin-top: 30px;
   padding: 20px;
   /* align-items: center; */
   color: gray;

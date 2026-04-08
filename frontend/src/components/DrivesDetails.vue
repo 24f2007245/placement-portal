@@ -1,4 +1,6 @@
 <script setup>
+
+// importing ___________
 import {ref, onMounted} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
@@ -17,19 +19,21 @@ function statusText(status) {
   if (status === 1) return 'Shortlisted'
   if (status === 2) return 'Selected'
   if (status === 3) return 'Rejected'
-  return 'Unknown'
 }
+
+// fetching drives_______________________________
+// get request
 
 async function fetchDriveDetails(){
     const token = localStorage.getItem('token')
-    if (!token) {
+    if (!token){
         localStorage.clear()
         window.location.href = '/login'
         return
     }
 
     try {
-        const response = await axios.get(
+        const response =await axios.get(
             `http://127.0.0.1:5000/drives/${drive_id}`,
             {
                 headers: {
@@ -37,8 +41,8 @@ async function fetchDriveDetails(){
                 }
             }
         )
-        drive_detail.value = response.data
-    } catch (error) {
+        drive_detail.value =response.data
+    }catch(error){
         if (error.response?.status === 401 || error.response?.status === 422) {
             localStorage.clear()
             window.location.href = '/login'
@@ -47,32 +51,38 @@ async function fetchDriveDetails(){
         message.value = error.response?.data?.message || 'Failed to load drive details'
     }
 }
+// END get drives____________________________
 
-async function fetchApplications() {
-    const token = localStorage.getItem('token')
-    if (!token || role !== 'admin') {
-        return
-    }
 
-    try {
-        const response = await axios.get(
-            `http://127.0.0.1:5000/admin/drive_applications/${drive_id}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        )
-        applications.value = response.data
-    } catch (error) {
-        console.error(error)
-        applications.value = []
-    }
-}
 
-onMounted(() => {
+// fetching_________________________
+// get request
+
+// async function fetchApplications(){
+//     const token = localStorage.getItem('token')
+//     if(!token || role !== 'admin'){
+//         return
+//     }
+
+//     try{
+//         const response = await axios.get(
+//             `http://127.0.0.1:5000/admin/drive_applications/${drive_id}`,
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`
+//                 }
+//             }
+//         )
+//         applications.value = response.data
+//     }catch(error){
+//         console.error(error)
+//         applications.value = []
+//     }
+// }
+
+onMounted(() =>{
     fetchDriveDetails()
-    fetchApplications()
+    // fetchApplications()
 })
 
 </script>
@@ -97,10 +107,10 @@ onMounted(() => {
             <h3>Eligibility Criteria</h3>
             <p>Branch:{{ drive_detail.branch }}</p>
             <p>CGPA:{{ drive_detail.cgpa }}</p>
-            <p>Year:{{ drive_detail.year }}</p>
+            <p>Graduating Year:{{ drive_detail.year }}</p>
             <p>Deadline:{{ drive_detail.application_deadline }}</p>
         </div>
-        <hr>
+        <!-- <hr>
         <div v-if="role === 'admin' && applications.length > 0" id="applications_section">
             <h2>Student Applications ({{ applications.length }})</h2>
             <table>
@@ -123,9 +133,7 @@ onMounted(() => {
                     </tr>
                 </tbody>
             </table>
-        </div>
-
-        <p v-else-if="role === 'admin'" style="color: orange; margin-top: 20px;">No applications yet</p>
+        </div> -->
     </div>
 
 </template>

@@ -1,16 +1,18 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 
 const message = ref('')
 const applications = ref([])
+const route = useRoute()
 
 function statusText(status){
     if (status === 0) return 'Applied'
     if (status === 1) return 'Shortlisted'
     if (status === 2) return 'Selected'
     if (status === 3) return 'Rejected'
-}
+    }
 
 async function fetchApplications() {
     const token = localStorage.getItem('token')
@@ -21,7 +23,10 @@ async function fetchApplications() {
     }
 
     try {
-        const response = await axios.get('http://127.0.0.1:5000/student/applications', {
+        const response = await axios.get('http://127.0.0.1:5000/admin/student_applications', {
+        params: {
+            search: (route.query.search || '').toString()
+        },
         headers: {
             Authorization: `Bearer ${token}`
         }
@@ -29,24 +34,34 @@ async function fetchApplications() {
 
         applications.value = response.data
     } catch (error) {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 || error.response?.status === 422) {
         localStorage.clear()
         window.location.href = '/login'
         return
         }
-        message.value = error.response?.data?.message || 'failed to load applications'
+        message.value = error.response?.data?.message || 'failed to load student applications'
     }
 }
 
 onMounted(() => {
     fetchApplications()
 })
+
+watch(
+    () => route.query.search,
+    () => {
+        fetchApplications()
+    }
+)
 </script>
 
 <template>
     <p v-if="message">{{ message }}</p>
-    <div id="apps">
-        <h1>My Applications</h1><br>
+
+    <div>
+        <h1>Student Applications</h1><br>
+        <p style="color: chocolate;">Total Applications: {{ applications.length }}</p>
+
         <table v-if="applications.length > 0">
         <thead>
             <tr>
@@ -54,31 +69,33 @@ onMounted(() => {
             <th>Drive ID</th>
             <th>Job Title</th>
             <th>Company ID</th>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Student Email</th>
             <th>Apply Date</th>
             <th>Status</th>
             </tr>
         </thead>
-
         <tbody>
             <tr v-for="app in applications" :key="app.application_id">
             <td>{{ app.application_id }}</td>
             <td>{{ app.drive_id }}</td>
             <td>{{ app.job_title }}</td>
             <td>{{ app.company_id }}</td>
+            <td>{{ app.student_id }}</td>
+            <td>{{ app.student_name }}</td>
+            <td>{{ app.student_email }}</td>
             <td>{{ app.application_date }}</td>
             <td>{{ statusText(app.status) }}</td>
             </tr>
         </tbody>
         </table>
-        <p v-else>no applications found</p>
+
+        <p v-else>no student applications found</p>
     </div>
 </template>
 
 <style scoped>
-#apps {
-  margin-top: 20px;
-}
-
 h1 {
   color: #2980B9;
 }

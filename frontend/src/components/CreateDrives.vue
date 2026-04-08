@@ -1,4 +1,6 @@
 <script setup>
+
+
 import {ref, reactive} from 'vue'
 
 const formData = reactive({
@@ -16,11 +18,10 @@ import axios from 'axios'
 
 async function create_drive(){
     const token = localStorage.getItem('token')
-    if (!token) {
+    if(!token) {
         localStorage.clear()
         window.location.href = '/login'
-        return
-    }
+        return}
 
     try{
         const response = await axios.post(
@@ -36,7 +37,7 @@ async function create_drive(){
 
     
 
-    } catch(error){
+    }catch(error){
         if (error.response?.status === 401) {
             localStorage.clear()
             message.value = 'Session expired. Please login again.'

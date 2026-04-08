@@ -55,11 +55,12 @@ watch(
             1.In the dashboard there are many section like drives, registered_company, registed_student; to search drives related things go into that section and then search with <code>drive_id,job_title,company_id ...</code>, for other section do the same <br>
         </p>
         <p v-if="user_role==='company'" class="note">NOTE: 
-            <br>1.In the dashboard there are many section like drives, registed_student; to search drives related things go into that section and then search with <code>drive_id,job_title,company_id ...</code>, for other section do the same <br>
-
+            <br>1.In the dashboard there are many section like drives; to search drives related things go into that section and then search with <code>drive_id,job_title,job_description</code>, for other section do the same <br>
+            2.In some section you will not search facility, if you are trying to search but not working, don't get ...
         </p>
         <p v-if="user_role==='student'" class="note">NOTE: <br> 
-            1.In the dashboard there are many section like drives, to search drives related things go into that section and then search with <code>drive_id,job_title,company_id ...</code><br>
+            1.In the dashboard there are many section like drives, to search drives related things go into that section and then search with <code>drive_id,job_title, </code><code>job_description,company_id </code><code>,cgpa,year,deadline.</code><br>
+            2.In some section you will not have search facility, if you are trying to search but not working, don't get ...
         </p>
 
  

@@ -1,4 +1,7 @@
 <script setup>
+
+// import
+
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
@@ -12,7 +15,7 @@ const router = useRouter()
 const route = useRoute()
 
 function subDescription(description) {
-    if (!description) {
+    if(!description){
         return '-'
     }
     if (description.length > 100) {
@@ -21,7 +24,8 @@ function subDescription(description) {
     return description
 }
 
-const fetchDrives = async () => {
+
+const fetchDrives= async() => {
     const token = localStorage.getItem('token')
     if (!token) {
         localStorage.clear()
@@ -29,7 +33,7 @@ const fetchDrives = async () => {
         return
     }
 
-    try {
+    try{
         const response = await axios.get(
             'http://127.0.0.1:5000/company/drives',
             {
@@ -53,9 +57,9 @@ const fetchDrives = async () => {
             }
         }
         
-    } catch (error) {
+    }catch(error){
         console.error(error)
-        if (error.response?.status === 401 || error.response?.status === 422) {
+        if (error.response?.status === 401) {
             localStorage.clear()
             window.location.href = '/login'
             return
@@ -64,7 +68,7 @@ const fetchDrives = async () => {
     }
 }
 
-onMounted(() => {
+onMounted(() =>{
     fetchDrives()
 })
 
@@ -82,7 +86,7 @@ async function viewApplications(drive_id) {
 <template>
     <p v-if="message">{{ message }}</p>
             <div id="drive_awaiting">
-                <h1>Awaiting Drives</h1><br>
+                <h2>Awaiting Drives</h2><br>
                 <table v-if="drives_awaiting.length>0">
                 <thead>
                     <tr>
@@ -113,7 +117,7 @@ async function viewApplications(drive_id) {
                 <p v-else>no records found</p>
             </div>
             <div id="approved_drives">
-                <h1>Your Approved Drives</h1><br>
+                <h2>Your Approved Drives</h2><br>
                 <table v-if="drives_approved.length>0">
                 <thead>
                     <tr>
@@ -124,7 +128,7 @@ async function viewApplications(drive_id) {
                     <th>Year</th>
                     <th>CGPA</th>
                     <th>Deadline</th>
-                    <th>Edit/change</th>
+                    <!-- <th>Edit/change</th> -->
                     <th>Applications</th>
                 </tr>
                 </thead>
@@ -138,7 +142,7 @@ async function viewApplications(drive_id) {
                     <td>{{ drive.year }}</td>
                     <td>{{ drive.cgpa }}</td>
                     <td>{{ drive.application_deadline  }}</td>
-                    <td><button>edit/change</button></td>
+                    <!-- <td><button>edit/change</button></td> -->
                     <td><button @click="viewApplications(drive.drive_id)">view applications</button></td>
                 </tr>
                 </tbody>
@@ -175,10 +179,6 @@ th,
 td {
     padding: 8px 10px;
     /* white-space: nowrap; */
-}
-
-h1{
-    color: #2980B9;
 }
 
 </style>

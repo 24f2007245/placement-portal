@@ -32,7 +32,7 @@ async function fetchShortlistedStudents() {
       window.location.href = '/login'
       return
     }
-    message.value = error.response?.data?.message || 'failed to load shortlisted students'
+    message.value = 'failed to load shortlisted students'
   }
 }
 

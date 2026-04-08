@@ -16,6 +16,7 @@
 
 <script setup>
 function indicate_index(){
+  
   window.location.href='/';
 }
 

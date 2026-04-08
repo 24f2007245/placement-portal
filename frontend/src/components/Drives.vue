@@ -1,4 +1,6 @@
 <script setup>
+
+// importing ________________________________
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
@@ -12,6 +14,12 @@ const role=localStorage.getItem('role')
 const router=useRouter()
 const route=useRoute()
 
+
+// functions____________________________________________
+
+
+
+
 function subDescription(des){
     if (des.length > 50){
         return des.slice(0,50)+"...";
@@ -21,9 +29,12 @@ function subDescription(des){
     }
 }
 
+// getting application of students___________________
+// get request
+
 async function fetchStudentApplications() {
-    const token = localStorage.getItem('token')
-    if (!token || !isStudent()) {
+    const token =localStorage.getItem('token')
+    if(!token || !isStudent()) {
         return
     }
 
@@ -34,49 +45,59 @@ async function fetchStudentApplications() {
             }
         })
 
-        applied_drive_ids.value = response.data.map(app => app.drive_id)
-    } catch (error) {
-        applied_drive_ids.value = []
+        applied_drive_ids.value =response.data.map(app => app.drive_id)
+    }catch (error) {
+        applied_drive_ids.value =[]
     }
 }
 
-function isApplied(drive_id) {
+// END of get request___________________
+
+
+// chhota  function
+function isApplied(drive_id){
+
     return applied_drive_ids.value.includes(drive_id)
 }
 
-function isAdmin() {
+// chhotafunction
+function isAdmin(){
     return role === 'admin'
-  }
+}
 
-function isStudent() {
+
+//chhota function
+function isStudent(){
     return role === 'student'
 }
   
+// fetching ______________________________
+// get request
 
-const fetchDrives = async () => {
+const fetchDrives = async ()=>{
     const token = localStorage.getItem('token')
-    if (!token) {
+    if(!token){
         localStorage.clear()
         window.location.href = '/login'
         return
     }
 
-    try {
-        const response = await axios.get(
+    try{
+        const response =await axios.get(
             'http://127.0.0.1:5000/drives',
             {
-                params: {
+                params:{
                     search: (route.query.search || '').toString()
                 },
-                headers: {
+                headers:{
                     Authorization: `Bearer ${token}`
                 }
             }
         )
 
         drives.value = response.data
-        approved_drive.value = []
-        awaiting_drive.value = []
+        approved_drive.value= []
+        awaiting_drive.value= []
         for(let drive of drives.value){
             if(drive.status===1){
                 approved_drive.value.push(drive)
@@ -84,24 +105,33 @@ const fetchDrives = async () => {
                 awaiting_drive.value.push(drive)
             }
         }
-    } catch (error) {
+        console.log(approved_drive)
+        console.log(awaiting_drive)
+    }catch(error) {
         console.error(error)
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401){
             localStorage.clear()
-            window.location.href = '/login'
-            return
-        }
+            window.location.href= '/login'
+            return}
         message.value = "Failed to load drives"
     }
 }
+
+// END of fetchDrives with get ________________________________
+
 
 function driveDetail(drive_id){
     router.push(`/drive/${drive_id}`)
 }
 
+
+
+// approving_____________________________________________________
+// patch request
+
 async function approveDrive(drive_id){
     const token = localStorage.getItem('token')
-    if (!token) {
+    if(!token){
         localStorage.clear()
         window.location.href = '/login'
         return
@@ -123,16 +153,22 @@ async function approveDrive(drive_id){
     }
 }
 
+// END approving with patch request____________________________________
+
+
+// deleting___________________________
+// delete request
+
 async function removeDrive(drive_id) {
-    const token = localStorage.getItem('token')
-    if (!token) {
+    const token= localStorage.getItem('token')
+    if(!token){
         localStorage.clear()
         window.location.href = '/login'
         return
     }
 
-    try {
-        const response = await axios.delete(
+    try{
+        const response =await axios.delete(
             `http://127.0.0.1:5000/admin/remove_drive/${drive_id}`,
             {
                 headers: {
@@ -141,28 +177,35 @@ async function removeDrive(drive_id) {
             }
         )
 
-        message.value = response.data?.message || 'drive removed successfully'
+        message.value ='drive removed successfully'
         fetchDrives()
-    } catch (error) {
-        if (error.response?.status === 401 || error.response?.status === 422) {
+    }catch(error){
+        if (error.response?.status === 401) {
             localStorage.clear()
-            window.location.href = '/login'
+            window.location.href= '/login'
             return
         }
-        message.value = error.response?.data?.message || 'failed to remove drive'
+        message.value= 'failed to remove drive'
     }
 }
 
-async function applyDrive(drive_id) {
-    const token = localStorage.getItem('token')
-    if (!token) {
+// END delete request________________________________________________
+
+
+
+// posting_______________________________
+// post request
+
+async function applyDrive(drive_id){
+    const token= localStorage.getItem('token')
+    if(!token) {
         localStorage.clear()
         window.location.href = '/login'
         return
     }
 
-    try {
-        const response = await axios.post(
+    try{
+        const response= await axios.post(
             `http://127.0.0.1:5000/apply_drive/${drive_id}`,
             {},
             {
@@ -175,21 +218,23 @@ async function applyDrive(drive_id) {
         message.value = response.data?.message || 'applied successfully'
         applied_drive_ids.value.push(drive_id)
     } catch (error) {
-        if (error.response?.status === 401 || error.response?.status === 422) {
+        if (error.response?.status === 401 ){
             localStorage.clear()
             window.location.href = '/login'
             return
         }
-        if (error.response?.status === 409) {
+        if (error.response?.status === 409){
             message.value = 'already applied'
-            if (!isApplied(drive_id)) {
+            if (!isApplied(drive_id)){
                 applied_drive_ids.value.push(drive_id)
             }
             return
         }
-        message.value = error.response?.data?.message || 'failed to apply'
+        message.value = 'failed to apply, if you have not updated the profile, please update first upload resume...'
     }
 }
+
+// END post request_____________________________________
 
 onMounted(() => {
     fetchDrives()
@@ -260,9 +305,10 @@ watch(
                     <th>Company ID</th>
                     <th>Job Title</th>
                     <th>Description</th>
-                    <!-- <th>Branch</th> -->
-                    <!-- <th>Year</th> -->
-                    <!-- <th>Deadline</th> -->
+                    <th>Branch</th>
+                    <th>CGPA</th>
+                    <th>Year</th>
+                    <th>Deadline</th>
                     <th>Details</th>
                     <template v-if="isAdmin()">
                         
@@ -276,30 +322,27 @@ watch(
                 </thead>
 
                 <tbody>
-                    <tr v-for="dri in approved_drive" :key="dri.drive_id">
-                    <td>{{ dri.drive_id }}</td>
-                    <td>{{ dri.company_id }}</td>
-                    <td>{{ dri.job_title }}</td>
-                    <td>{{ subDescription(dri.job_description) }}</td>
-                    <!-- <td>{{ drive.branch }}</td> -->
-                    <!-- <td>{{ drive.year }}</td> -->
-                    <!-- <td>{{ drive.application_deadline }}</td> -->
-                    <td><button @click="driveDetail(dri.drive_id)">details</button></td>
+                    <tr v-for="drive in approved_drive" :key="drive.drive_id">
+                    <td>{{ drive.drive_id }}</td>
+                    <td>{{ drive.company_id }}</td>
+                    <td>{{ drive.job_title }}</td>
+                    <td>{{ subDescription(drive.job_description) }}</td>
+                    <td>{{ drive.branch }}</td>
+                    <td>{{ drive.cgpa }}</td>
+                    <td>{{ drive.year }}</td>
+                    <td>{{ drive.application_deadline }}</td>
+                    <td><button @click="driveDetail(drive.drive_id)">details</button></td>
 
                     <template v-if="isAdmin()">
                         
-                        <td ><button class="dngr" @click="removeDrive(dri.drive_id)">remove</button></td>
+                        <td ><button class="dngr" @click="removeDrive(drive.drive_id)">remove</button></td>
                     </template>
                     <template v-else-if="isStudent()">
-                        <th>
-                            <button
-                                @click="applyDrive(dri.drive_id)"
-                                :disabled="isApplied(dri.drive_id)"
-                                :class="{ 'faded_btn': isApplied(dri.drive_id) }"
-                            >
-                                {{ isApplied(dri.drive_id) ? 'applied' : 'apply' }}
+                        <td>
+                            <button @click="applyDrive(drive.drive_id)" :disabled="isApplied(drive.drive_id)" :class="{ 'faded_btn': isApplied(drive.drive_id) }">
+                                {{ isApplied(drive.drive_id) ? 'applied' : 'apply' }}
                             </button>
-                        </th>
+                        </td>
                     </template>
                     
                 </tr>

@@ -5,6 +5,12 @@ import { useRoute } from 'vue-router'
 const rcusers = ref([])
 const route = useRoute()
 const message = ref('')
+
+
+
+// fetching company
+// get request
+
 const fetchUsers = async () => {
     try {
         const response = await axios.get(
@@ -29,15 +35,19 @@ function blackList(){
     return
 }
 
+
+// delete request 
+// deleting company____________________
+
 async function removeCompany(user_id) {
     const token = localStorage.getItem('token')
-    if (!token) {
+    if(!token){
         localStorage.clear()
         window.location.href = '/login'
         return
     }
 
-    try {
+    try{
         const response = await axios.delete(
             `http://127.0.0.1:5000/admin/remove_company/${user_id}`,
             {

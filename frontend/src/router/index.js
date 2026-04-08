@@ -10,12 +10,14 @@ import ViewDrives from '@/components/ViewDrives.vue'
 import DrivesDetails from '@/components/DrivesDetails.vue'
 import StudentProfile from '@/components/StudentProfile.vue'
 import StudentApplications from '@/components/StudentApplications.vue'
+import AdminStudentApplications from '@/components/AdminStudentApplications.vue'
 import CompanyDriveApplications from '@/components/CompanyDriveApplications.vue'
 import ShortlistedStudents from '@/components/ShortlistedStudents.vue'
 import RegisteredStudent from '@/components/RegisteredStudent.vue'
 
 
 const router = createRouter({
+  
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
@@ -64,6 +66,10 @@ const router = createRouter({
         {
           path: 'registered_students',
           component: RegisteredStudent
+        },
+        {
+          path: 'student_applications',
+          component: AdminStudentApplications
         },
         {
           path: 'drive/:id',

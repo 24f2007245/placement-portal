@@ -4,11 +4,11 @@ import axios from 'axios'
 import { ref, onMounted } from 'vue'
 
 
-const rsusers = ref([])
+const rsusers= ref([])
 const message = ref('')
 const fetchStudent = async () => {
 
-    try {
+    try{
         const res = await axios.get(
             'http://127.0.0.1:5000/admin/registered_students',
             {
@@ -19,7 +19,7 @@ const fetchStudent = async () => {
         )
 
         rsusers.value = res.data
-    } catch (err) {
+    }catch (err) {
         console.log(err)
     }
 }
@@ -30,13 +30,13 @@ const fetchStudent = async () => {
 
 async function removeStudent(student_id) {
     const token = localStorage.getItem('token')
-    if (!token) {
+    if (!token){
         localStorage.clear()
         window.location.href = '/login'
         return
     }
 
-    try {
+    try{
         const response = await axios.delete(
             `http://127.0.0.1:5000/admin/remove_student/${student_id}`,
             {
@@ -47,13 +47,13 @@ async function removeStudent(student_id) {
         )
         message.value = response.data?.message || 'student removed successfully'
         fetchStudent()
-    } catch (err) {
+    } catch(err){
         message.value = err.response?.data?.message || 'failed to remove student'
     }
 }
 
 
-onMounted(() => {
+onMounted(() =>{
     fetchStudent()
 })
 </script>

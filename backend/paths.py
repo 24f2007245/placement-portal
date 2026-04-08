@@ -170,9 +170,22 @@ class PlacementDrive(Resource):
             result = [
                 row for row in result
                 if search in str(row.get('drive_id', '')).lower()
-                or search in str(row.get('company_id', '')).lower()
-                or search in str(row.get('job_title', '')).lower()
-                or search in str(row.get('branch', '')).lower()
+                or 
+                search in str(row.get('company_id', '')).lower()
+                or 
+                search in str(row.get('job_title', '')).lower()
+                or 
+                search in str(row.get('job_description','')).lower()
+                or
+                search in str(row.get('branch','')).lower()
+                or
+                search in str(row.get('cgpa','')).lower()
+                or
+                search in str(row.get('year','')).lower()
+                or
+                search in str(row.get('application_deadline','')).lower()
+
+                
             ]
         
         return jsonify(result)
@@ -308,12 +321,11 @@ class CompanyDrives(Resource):
             result = [
                 row for row in result
                 if search in str(row.get('drive_id', '')).lower()
-                or search in str(row.get('job_title', '')).lower()
-                or search in str(row.get('job_description', '')).lower()
-                or search in str(row.get('branch', '')).lower()
-                or search in str(row.get('year', '')).lower()
-                or search in str(row.get('cgpa', '')).lower()
-                or search in str(row.get('application_deadline', '')).lower()
+                or 
+                search in str(row.get('job_title', '')).lower()
+                or 
+                search in str(row.get('job_description', '')).lower()
+                
             ]
 
         return jsonify(result)
@@ -358,11 +370,13 @@ class CompanyDriveApplications(Resource):
             result = [
                 row for row in result
                 if search in str(row.get('application_id', '')).lower()
-                or search in str(row.get('student_id', '')).lower()
-                or search in str(row.get('student_name', '')).lower()
-                or search in str(row.get('student_email', '')).lower()
-                or search in str(row.get('application_date', '')).lower()
-                or search in str(row.get('status', '')).lower()
+                or 
+                search in str(row.get('student_id', '')).lower()
+                or 
+                search in str(row.get('student_name', '')).lower()
+                or 
+                search in str(row.get('student_email', '')).lower()
+                
             ]
 
         return jsonify(result)
@@ -488,11 +502,16 @@ class CompanyShortlistedStudents(Resource):
             result = [
                 row for row in result
                 if search in str(row.get('application_id', '')).lower()
-                or search in str(row.get('drive_id', '')).lower()
-                or search in str(row.get('job_title', '')).lower()
-                or search in str(row.get('student_id', '')).lower()
-                or search in str(row.get('student_name', '')).lower()
-                or search in str(row.get('student_email', '')).lower()
+                or 
+                search in str(row.get('drive_id', '')).lower()
+                or 
+                search in str(row.get('job_title', '')).lower()
+                or 
+                search in str(row.get('student_id', '')).lower()
+                or 
+                search in str(row.get('student_name', '')).lower()
+                or 
+                search in str(row.get('student_email', '')).lower()
             ]
 
         return jsonify(result)
@@ -630,6 +649,50 @@ class RemoveStudent(Resource):
         return {'message': 'student removed successfully'}, 200
 
 
+    class AdminStudentApplications(Resource):
+        @jwt_required()
+        def get(self):
+            user_email = get_jwt_identity()
+            current_user = User.query.filter_by(user_email=user_email).first()
+            if not current_user or current_user.role.name != 'admin':
+                return {"message": "not authorized"}, 403
+
+            apps = Applications.query.all()
+            result = []
+            for app in apps:
+                drive = PlacementsDrives.query.get(app.drive_id)
+                student_user = User.query.get(app.student_id)
+                result.append({
+                    "application_id": app.application_id,
+                    "drive_id": app.drive_id,
+                    "job_title": drive.job_title if drive else None,
+                    "company_id": drive.company_id if drive else None,
+                    "student_id": app.student_id,
+                    "student_name": student_user.user_name if student_user else None,
+                    "student_email": student_user.user_email if student_user else None,
+                    "application_date": app.application_date.isoformat() if app.application_date else None,
+                    "status": app.status,
+                })
+
+            search = request.args.get('search', '').strip().lower()
+            if search:
+                result = [
+                    row for row in result
+                    if search in str(row.get('application_id', '')).lower()
+                    or search in str(row.get('drive_id', '')).lower()
+                    or search in str(row.get('job_title', '')).lower()
+                    or search in str(row.get('company_id', '')).lower()
+                    or search in str(row.get('student_id', '')).lower()
+                    or search in str(row.get('student_name', '')).lower()
+                    or search in str(row.get('student_email', '')).lower()
+                    or search in str(row.get('application_date', '')).lower()
+                    or search in str(row.get('status', '')).lower()
+                ]
+
+            return jsonify(result)
+
+
+    api.add_resource(AdminStudentApplications, '/admin/student_applications')
 api.add_resource(RemoveStudent, '/admin/remove_student/<int:student_id>')
 
 
@@ -658,7 +721,7 @@ class StudentProfileAction(Resource):
                 else:
                     return {"message":'user profile is not updated'}
             else:
-                return {"message":"user updated profile not found"}
+                return {"message":"user updated profile not found; uploading resume is mandatory for first update; once your profile gets updated only than you will able to apply "}
 
         except Exception as err:
             return{'message':str(err)}
