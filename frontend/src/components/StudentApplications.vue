@@ -47,7 +47,8 @@ onMounted(() => {
     <p v-if="message">{{ message }}</p>
     <div id="apps">
         <h1>My Applications</h1><br>
-        <table v-if="applications.length > 0">
+        <div class="table">
+            <table v-if="applications.length > 0">
         <thead>
             <tr>
             <th>Application ID</th>
@@ -71,6 +72,7 @@ onMounted(() => {
         </tbody>
         </table>
         <p v-else>no applications found</p>
+        </div>
     </div>
 </template>
 

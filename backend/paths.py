@@ -4,7 +4,11 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from models import db, User, Role, PlacementsDrives, StudentProfile, Applications, CompanyProfile 
 from datetime import datetime
 import os
+from flask_caching import Cache             # pyright: ignore[reportMissingImports]
+
+
 api=Api()
+cache= Cache()
 
 
 #UNIQUE STRING__________________
@@ -133,6 +137,7 @@ class PlacementDrive(Resource):
     
 
     @jwt_required()
+    # @cache.cached(timeout=30)
     def get(self, drive_id=None):
         if drive_id is not None:
             drive = PlacementsDrives.query.get(drive_id)
@@ -171,8 +176,8 @@ class PlacementDrive(Resource):
                 row for row in result
                 if search in str(row.get('drive_id', '')).lower()
                 or 
-                search in str(row.get('company_id', '')).lower()
-                or 
+                # search in str(row.get('company_id', '')).lower()
+                # or 
                 search in str(row.get('job_title', '')).lower()
                 or 
                 search in str(row.get('job_description','')).lower()
@@ -295,6 +300,7 @@ api.add_resource(RemoveDrive, '/admin/remove_drive/<int:drive_id>')
 
 class CompanyDrives(Resource):
     @jwt_required()
+    # @cache.cached(timeout=30)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email ).first()
@@ -426,6 +432,7 @@ api.add_resource(CompanyApplicationStatus, '/company/application_status/<int:app
 
 class CompanyApplicationResume(Resource):
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self, application_id):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -453,7 +460,7 @@ class CompanyApplicationResume(Resource):
 
         return send_file(
             resume_path,
-            mimetype='application/pdf',
+            mimetype='pdf',
             as_attachment=False,
             download_name=f'resume_{application.student_id}.pdf'
         )
@@ -464,6 +471,7 @@ api.add_resource(CompanyApplicationResume, '/company/application_resume/<int:app
 
 class CompanyShortlistedStudents(Resource):
     @jwt_required()
+    # @cache.cached(timeout=30)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -522,6 +530,7 @@ api.add_resource(CompanyShortlistedStudents, '/company/shortlisted_students')
 
 class CompanyApplication(Resource):
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -547,6 +556,7 @@ api.add_resource(CompanyApplication,'/company_application')
 
 class RegisteredCompany(Resource):
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self):
         data=User.query.filter_by(status=1,role_id=2).all()
         result = []
@@ -605,6 +615,7 @@ api.add_resource(RemoveCompany, '/admin/remove_company/<int:company_id>')
 
 class Students(Resource):
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self):
         data=User.query.filter_by(status=1,role_id=3).all()
         
@@ -651,6 +662,7 @@ class RemoveStudent(Resource):
 
     class AdminStudentApplications(Resource):
         @jwt_required()
+        # @cache.cached(timeout=30)
         def get(self):
             user_email = get_jwt_identity()
             current_user = User.query.filter_by(user_email=user_email).first()
@@ -701,6 +713,7 @@ api.add_resource(RemoveStudent, '/admin/remove_student/<int:student_id>')
 class StudentProfileAction(Resource): 
 
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self):
         email=get_jwt_identity()
         student=User.query.filter_by(user_email=email).first()
@@ -782,6 +795,7 @@ api.add_resource(StudentProfileAction,'/student_profile')
 
 class StudentResume(Resource):
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self):
         email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=email).first()
@@ -808,6 +822,7 @@ api.add_resource(StudentResume, '/student_profile/resume')
 
 class StudentApplications(Resource):
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -868,6 +883,7 @@ api.add_resource(ApproveApplication,"/approve_application/<int:company_id>")
 
 class DriveApplications(Resource):
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self, drive_id):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()

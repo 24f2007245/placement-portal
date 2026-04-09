@@ -99,6 +99,9 @@ table {
     margin-top: 15px;
 }
 
+
+
+
 th, td {
     border: 1px solid #ddd;
     padding: 10px;
@@ -121,4 +124,5 @@ tr:hover {
 td button{
   border: none;
 }
+
 /* yahi tak h table */

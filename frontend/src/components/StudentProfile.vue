@@ -131,7 +131,7 @@ fetchStudents()
 </script>
 
 <template>
-    <div>
+    <div id="parent_div">
         <h1>Student Profile</h1>
         <p v-if="message" class="msg">{{ message }}</p>
 
@@ -195,6 +195,18 @@ textarea {
     color: cadetblue;
     /* transform: scale(1.1); */
     /* text-decoration: overline; */
+}
+
+@media(max-width:770px){
+    input{
+        width: 280px;
+    }
+    #parent_div{
+        padding: 20px;
+    }
+    textarea{
+        width: 280px;
+    }
 }
 
 </style>

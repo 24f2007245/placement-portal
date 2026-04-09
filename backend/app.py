@@ -16,8 +16,20 @@ from models import db, User, Role
 db.init_app(app)
 
 
-from paths import api
-api.init_app(app)
+
+
+# importing api and cache 
+# from paths.py
+
+from paths import api, cache
+
+app.config["CACHE_TYPE"]='RedisCache'
+app.config["CACHE_REDIS_URL"]='redis://localhost:6379/0'
+
+cache.init_app(app)         #cache initialize ho raha h flask app ke saath
+api.init_app(app)           # api initialise ho raha h flask app ke saath
+
+#___________________________________
 
 if __name__=='__main__':
     with app.app_context():

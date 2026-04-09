@@ -73,7 +73,7 @@ html_template = """
 
 SMTP_HOST = 'localhost'
 SMTP_PORT = 1025
-FROM_EMAIL = 'admin@gmail.com'
+FROM_EMAIL = 'admin@admin.com'
 
 def send_email(to_email, subject, body):
     msg = MIMEMultipart()

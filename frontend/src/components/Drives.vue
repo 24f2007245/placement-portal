@@ -255,100 +255,105 @@ watch(
                 <p style="color: chocolate;">Total Number Of Ongoing Drives is {{ approved_drive.length }}</p>
                 <p style="color: chocolate;">Total Number Of Awaiting Drives is {{ awaiting_drive.length }}</p>
                 <h1>Awaiting Drives</h1><br>
-                <table v-if="awaiting_drive.length>0">
-                <thead>
-                    <tr>
-                    <th>Drive ID</th>
-                    <th>Company ID</th>
-                    <th>Job Title</th>
-                    <th>Description</th>
-                    <!-- <th>Branch</th> -->
-                    <!-- <th>Year</th> -->
-                    <!-- <th>Deadline</th> -->
-                    <th>Details</th>
-                    
-                    <th >Approve</th>
-                    <th >Remove</th>
-                    
-                    
-                </tr>
-                </thead>
+                <div class="table">
+                    <table v-if="awaiting_drive.length>0">
+                    <thead>
+                        <tr>
+                        <th>Drive ID</th>
+                        <th>Company ID</th>
+                        <th>Job Title</th>
+                        <th>Description</th>
+                        <!-- <th>Branch</th> -->
+                        <!-- <th>Year</th> -->
+                        <!-- <th>Deadline</th> -->
+                        <th>Details</th>
+                        
+                        <th >Approve</th>
+                        <th >Remove</th>
+                        
+                        
+                    </tr>
+                    </thead>
 
-                <tbody>
-                    <tr v-for="drive in awaiting_drive" :key="drive.drive_id">
-                    <td>{{ drive.drive_id }}</td>
-                    <td>{{ drive.company_id }}</td>
-                    <td>{{ drive.job_title }}</td>
-                    <td>{{ subDescription(drive.job_description) }}</td>
-                    <!-- <td>{{ drive.branch }}</td> -->
-                    <!-- <td>{{ drive.year }}</td> -->
-                    <!-- <td>{{ drive.application_deadline }}</td> -->
-                    <td><button @click="driveDetail(drive.drive_id)">details</button></td>
+                    <tbody>
+                        <tr v-for="drive in awaiting_drive" :key="drive.drive_id">
+                        <td>{{ drive.drive_id }}</td>
+                        <td>{{ drive.company_id }}</td>
+                        <td>{{ drive.job_title }}</td>
+                        <td>{{ subDescription(drive.job_description) }}</td>
+                        <!-- <td>{{ drive.branch }}</td> -->
+                        <!-- <td>{{ drive.year }}</td> -->
+                        <!-- <td>{{ drive.application_deadline }}</td> -->
+                        <td><button @click="driveDetail(drive.drive_id)">details</button></td>
 
-                    
-                    <td ><button @click="approveDrive(drive.drive_id)">approve</button></td>
-                    <td ><button class="dngr" @click="removeDrive(drive.drive_id)">remove</button></td>
-                    
-                    
-                </tr>
-                </tbody>
-                </table>
-                <p v-else>no records</p>
+                        
+                        <td ><button @click="approveDrive(drive.drive_id)">approve</button></td>
+                        <td ><button class="dngr" @click="removeDrive(drive.drive_id)">remove</button></td>
+                        
+                        
+                    </tr>
+                    </tbody>
+                    </table>
+                    <p v-else>no records</p>
+                </div>
             </div>
             <br>
             <div id="approved_drive">
                 <h1>Ongoing Drives</h1><br>
-                <table v-if="approved_drive.length>0">
-                <thead>
-                    <tr>
-                    <th>Drive ID</th>
-                    <th>Company ID</th>
-                    <th>Job Title</th>
-                    <th>Description</th>
-                    <th>Branch</th>
-                    <th>CGPA</th>
-                    <th>Year</th>
-                    <th>Deadline</th>
-                    <th>Details</th>
-                    <template v-if="isAdmin()">
+                <div class="table">
+                    <table v-if="approved_drive.length>0">
+                    <thead>
+                        <tr>
+                        <th>Drive ID</th>
+                        <th>Company ID</th>
+                        <th>Job Title</th>
+                        <th>Description</th>
+                        <th>Branch</th>
+                        <th>CGPA</th>
+                        <th>Year</th>
+                        <th>Deadline</th>
+                        <th>Details</th>
+                        <template v-if="isAdmin()">
+                            
+                            <th >Remove</th>
+                        </template>
+                        <template v-else>
+                            <th v-if="isStudent()">Apply</th>
+                        </template>
                         
-                        <th >Remove</th>
-                    </template>
-                    <template v-else>
-                        <th v-if="isStudent()">Apply</th>
-                    </template>
-                    
-                </tr>
-                </thead>
+                    </tr>
+                    </thead>
 
-                <tbody>
-                    <tr v-for="drive in approved_drive" :key="drive.drive_id">
-                    <td>{{ drive.drive_id }}</td>
-                    <td>{{ drive.company_id }}</td>
-                    <td>{{ drive.job_title }}</td>
-                    <td>{{ subDescription(drive.job_description) }}</td>
-                    <td>{{ drive.branch }}</td>
-                    <td>{{ drive.cgpa }}</td>
-                    <td>{{ drive.year }}</td>
-                    <td>{{ drive.application_deadline }}</td>
-                    <td><button @click="driveDetail(drive.drive_id)">details</button></td>
+                    <tbody>
+                        <tr v-for="drive in approved_drive" :key="drive.drive_id">
+                        <td>{{ drive.drive_id }}</td>
+                        <td>{{ drive.company_id }}</td>
+                        <td>{{ drive.job_title }}</td>
+                        <td>{{ subDescription(drive.job_description) }}</td>
+                        <td>{{ drive.branch }}</td>
+                        <td>{{ drive.cgpa }}</td>
+                        <td>{{ drive.year }}</td>
+                        <td>{{ drive.application_deadline }}</td>
+                        <td><button @click="driveDetail(drive.drive_id)">details</button></td>
 
-                    <template v-if="isAdmin()">
+                        <template v-if="isAdmin()">
+                            
+                            <td ><button class="dngr" @click="removeDrive(drive.drive_id)">remove</button></td>
+                        </template>
+                        <template v-else-if="isStudent()">
+                            <td>
+                                <button @click="applyDrive(drive.drive_id)" :disabled="isApplied(drive.drive_id)" :class="{ 'faded_btn': isApplied(drive.drive_id) }">
+                                    {{ isApplied(drive.drive_id) ? 'applied' : 'apply' }}
+                                </button>
+                            </td>
+                        </template>
                         
-                        <td ><button class="dngr" @click="removeDrive(drive.drive_id)">remove</button></td>
-                    </template>
-                    <template v-else-if="isStudent()">
-                        <td>
-                            <button @click="applyDrive(drive.drive_id)" :disabled="isApplied(drive.drive_id)" :class="{ 'faded_btn': isApplied(drive.drive_id) }">
-                                {{ isApplied(drive.drive_id) ? 'applied' : 'apply' }}
-                            </button>
-                        </td>
-                    </template>
-                    
-                </tr>
-                </tbody>
-                </table>
-                <p v-else>no records</p>
+                    </tr>
+                    </tbody>
+                    </table>
+                    <p v-else>no records</p>
+                </div>
+                
             </div>
 </template>
 <style scoped>

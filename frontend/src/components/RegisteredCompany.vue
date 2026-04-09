@@ -81,7 +81,8 @@ watch(
         <p style="color: chocolate;">Total Number Of Registered Company/Recruiter is {{ rcusers.length }}</p>
 
         <h1>Registered Companys</h1><br>
-        <table>
+        <div class="table">
+            <table>
             <thead>
                 <tr>
                     <th>Company ID</th>
@@ -108,6 +109,7 @@ watch(
                 </tr>
             </tbody>
         </table>
+        </div>
     </div>
 </template>
 <style>

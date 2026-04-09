@@ -139,38 +139,40 @@ watch(
         <p v-if="message">{{ message }}</p>
 
         <h1> Applications for Drive {{ drive_id }} </h1><br>
-        <table v-if="applications.length > 0">
-        <thead>
-            <tr>
-            <th> Application ID</th>
-            <th> Student ID</th>
-            <th> Student Name</th>
-            <th> Student Email</th>
-            <th> Apply Date</th>
-            <th> Status</th>
-            <th> Resume</th>
-            <th> Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="app in applications" :key="app.application_id">
-            <td>{{ app.application_id }}</td>
-            <td>{{ app.student_id }}</td>
-            <td>{{ app.student_name }}</td>
-            <td>{{ app.student_email }}</td>
-            <td>{{ app.application_date }}</td>
-            <td>{{ statusText(app.status) }}</td>
-            <td>
-                <button @click="viewResume(app.application_id)" :disabled="!app.resume_path">view resume</button>
-            </td>
-            <td>
-                <button @click="updateApplicationStatus(app.application_id, 1)">shortlist</button>
-                <button @click="updateApplicationStatus(app.application_id, 3)">reject</button></td>
-            </tr>
-        </tbody>
-        </table>
+        <div class="table">
+            <table v-if="applications.length > 0">
+            <thead>
+                <tr>
+                <th> Application ID</th>
+                <th> Student ID</th>
+                <th> Student Name</th>
+                <th> Student Email</th>
+                <th> Apply Date</th>
+                <th> Status</th>
+                <th> Resume</th>
+                <th> Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="app in applications" :key="app.application_id">
+                <td>{{ app.application_id }}</td>
+                <td>{{ app.student_id }}</td>
+                <td>{{ app.student_name }}</td>
+                <td>{{ app.student_email }}</td>
+                <td>{{ app.application_date }}</td>
+                <td>{{ statusText(app.status) }}</td>
+                <td>
+                    <button @click="viewResume(app.application_id)" :disabled="!app.resume_path">view resume</button>
+                </td>
+                <td>
+                    <button @click="updateApplicationStatus(app.application_id, 1)">shortlist</button>
+                    <button @click="updateApplicationStatus(app.application_id, 3)">reject</button></td>
+                </tr>
+            </tbody>
+            </table>
 
-        <p v-else>no applications found for this drive</p>
+            <p v-else>no applications found for this drive</p>
+        </div>
     </div>
 </template>
 

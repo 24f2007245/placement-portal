@@ -87,7 +87,8 @@ async function viewApplications(drive_id) {
     <p v-if="message">{{ message }}</p>
             <div id="drive_awaiting">
                 <h2>Awaiting Drives</h2><br>
-                <table v-if="drives_awaiting.length>0">
+                <div class="table">
+                    <table v-if="drives_awaiting.length>0">
                 <thead>
                     <tr>
                     <th>Drive ID</th>
@@ -115,10 +116,12 @@ async function viewApplications(drive_id) {
                 </tbody>
                 </table>
                 <p v-else>no records found</p>
+                </div>
             </div>
             <div id="approved_drives">
                 <h2>Your Approved Drives</h2><br>
-                <table v-if="drives_approved.length>0">
+                <div class="table">
+                    <table v-if="drives_approved.length>0">
                 <thead>
                     <tr>
                     <th>Drive ID</th>
@@ -148,6 +151,7 @@ async function viewApplications(drive_id) {
                 </tbody>
                 </table>
                 <p v-else>no records found</p>
+                </div>
             </div>
 </template>
 <style scoped>

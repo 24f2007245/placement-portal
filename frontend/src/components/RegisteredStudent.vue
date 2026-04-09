@@ -61,7 +61,8 @@ onMounted(() =>{
     <div id="registered_students">
                 <p v-if="message">{{ message }}</p>
                 <h1>Registered Students</h1><br>
-                <table>
+                <div class="table">
+                    <table>
                     <thead><tr>
                         <th>Student ID</th>
                         <th>Student Name</th>
@@ -78,6 +79,7 @@ onMounted(() =>{
                         <td><button class="dngr" @click="removeStudent(student.user_id)"> remove</button></td>
                     </tr></tbody>
                 </table>
+                </div>
             </div>
 </template>
 

@@ -47,10 +47,15 @@ watch(
 </script>
 <template>
     <div id="main">
-        <h1>Welcome {{ user_name }}</h1><h3>{{ user_email }}</h3>
-        <!-- <label for="search"><h3>Search</h3></label> -->
-        <span><input type="search" id="search" placeholder="search" v-model="search" @keyup.enter="applySearch"></span>
-        <span><button type="submit" @click="applySearch">find</button></span>
+        <div id="div_search">
+            <h1>Welcome {{ user_name }}</h1><h3>{{ user_email }}</h3>
+            <!-- <label for="search"><h3>Search</h3></label> -->
+            <span><input type="search" id="search" placeholder="search" v-model="search" @keyup.enter="applySearch"></span>
+            <span><button type="submit" @click="applySearch">find</button></span>
+        </div>
+
+
+
         <p v-if="user_role==='admin'" class="note">NOTE: <br>
             1.In the dashboard there are many section like drives, registered_company, registed_student; to search drives related things go into that section and then search with <code>drive_id,job_title,company_id ...</code>, for other section do the same <br>
         </p>
@@ -84,15 +89,21 @@ watch(
     /* position:static; */
 }
 
-h1, h3 {
-    overflow-wrap: anywhere;
-    word-break: break-word;
-}
+button{
+        width: 60px;
+    }
+    
+
+
 @media(max-width:760px){
     #main{
         width:100%;
         margin:10px;
         
+    }
+    #div_search{
+        padding-top: 20px;
+        padding-bottom: 20px;
     }
     
 }
@@ -103,7 +114,7 @@ button{
     margin: 3px;
     border: 2px solid cadetblue;
     font-weight: bold;
-    text-decoration: underline;
+    /* text-decoration: underline; */
 }
 
 </style>

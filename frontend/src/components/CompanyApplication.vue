@@ -118,28 +118,30 @@ watch(
     <div id="company_application">
         <h1>Company Application</h1><br>
         <div id="cntnt">
-            <table v-if="users.length>0">
-            <thead>
-                <tr>
-                <th>Company ID</th>
-                <th>Company Name</th>
-                <th>Company Email</th>
-                <th>Approve</th>
-                <th>Remove</th>
-            </tr>
-            </thead>
+            <div class="table">
+                <table v-if="users.length>0">
+                <thead>
+                    <tr>
+                    <th>Company ID</th>
+                    <th>Company Name</th>
+                    <th>Company Email</th>
+                    <th>Approve</th>
+                    <th>Remove</th>
+                </tr>
+                </thead>
 
-            <tbody>
-                <tr v-for="user in users" :key="user.user_id">
-                <td>{{ user.user_id }}</td>
-                <td>{{ user.user_name }}</td>
-                <td>{{ user.user_email }}</td>
-                <td><button @click="approveApplication(user.user_id) ">approve</button></td>
-                <td><button class="dngr" @click="removeCompany(user.user_id)">remove</button> </td>
-            </tr>
-            </tbody>
-            </table>
-            <p v-else>no records</p>
+                <tbody>
+                    <tr v-for="user in users" :key="user.user_id">
+                    <td>{{ user.user_id }}</td>
+                    <td>{{ user.user_name }}</td>
+                    <td>{{ user.user_email }}</td>
+                    <td><button @click="approveApplication(user.user_id) ">approve</button></td>
+                    <td><button class="dngr" @click="removeCompany(user.user_id)">remove</button> </td>
+                </tr>
+                </tbody>
+                </table>
+                <p v-else>no records</p>
+            </div>
         </div>
         </div>
 </template>

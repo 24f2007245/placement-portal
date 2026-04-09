@@ -89,7 +89,8 @@ watch(
   <p v-if="message">{{ message }}</p>
   <div>
     <h1>Shortlisted Students</h1><br>
-    <table v-if="students.length > 0">
+    <div class="table">
+        <table v-if="students.length > 0">
       <thead>
         <tr>
           <th>Application ID</th>
@@ -118,6 +119,7 @@ watch(
       </tbody>
     </table>
     <p v-else>no shortlisted students found</p>
+    </div>
   </div>
 </template>
 

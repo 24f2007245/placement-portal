@@ -5,7 +5,7 @@
       <div id="nav_right">
         
         <span>role: {{ user_role }}</span>|
-        <span>{{ user_email }}</span>
+        <span id="u_eml">{{ user_email }}</span>
         <button @click="logout">Logout</button>
     </div>
 
@@ -67,6 +67,12 @@ button:hover{
   background-color: cadetblue;
   color: white;
   
+}
+
+@media(max-width:500px){
+  #u_eml{
+    display: none;
+  }
 }
 </style>
     

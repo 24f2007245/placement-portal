@@ -62,36 +62,39 @@ watch(
         <h1>Student Applications</h1><br>
         <p style="color: chocolate;">Total Applications: {{ applications.length }}</p>
 
-        <table v-if="applications.length > 0">
-        <thead>
-            <tr>
-            <th>Application ID</th>
-            <th>Drive ID</th>
-            <th>Job Title</th>
-            <th>Company ID</th>
-            <th>Student ID</th>
-            <th>Student Name</th>
-            <th>Student Email</th>
-            <th>Apply Date</th>
-            <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="app in applications" :key="app.application_id">
-            <td>{{ app.application_id }}</td>
-            <td>{{ app.drive_id }}</td>
-            <td>{{ app.job_title }}</td>
-            <td>{{ app.company_id }}</td>
-            <td>{{ app.student_id }}</td>
-            <td>{{ app.student_name }}</td>
-            <td>{{ app.student_email }}</td>
-            <td>{{ app.application_date }}</td>
-            <td>{{ statusText(app.status) }}</td>
-            </tr>
-        </tbody>
-        </table>
+        <div class="table">
+            <table v-if="applications.length > 0">
+            <thead>
+                <tr>
+                <th>Application ID</th>
+                <th>Drive ID</th>
+                <th>Job Title</th>
+                <th>Company ID</th>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th>Student Email</th>
+                <th>Apply Date</th>
+                <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="app in applications" :key="app.application_id">
+                <td>{{ app.application_id }}</td>
+                <td>{{ app.drive_id }}</td>
+                <td>{{ app.job_title }}</td>
+                <td>{{ app.company_id }}</td>
+                <td>{{ app.student_id }}</td>
+                <td>{{ app.student_name }}</td>
+                <td>{{ app.student_email }}</td>
+                <td>{{ app.application_date }}</td>
+                <td>{{ statusText(app.status) }}</td>
+                </tr>
+            </tbody>
+            </table>
+            <p v-else>no student applications found</p>
+        </div>
 
-        <p v-else>no student applications found</p>
+        
     </div>
 </template>
 
