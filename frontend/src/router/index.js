@@ -11,6 +11,7 @@ import DrivesDetails from '@/components/DrivesDetails.vue'
 import StudentProfile from '@/components/StudentProfile.vue'
 import StudentApplications from '@/components/StudentApplications.vue'
 import AdminStudentApplications from '@/components/AdminStudentApplications.vue'
+import AdminHiredStudents from '@/components/AdminHiredStudents.vue'
 import CompanyDriveApplications from '@/components/CompanyDriveApplications.vue'
 import ShortlistedStudents from '@/components/ShortlistedStudents.vue'
 import RegisteredStudent from '@/components/RegisteredStudent.vue'
@@ -70,6 +71,10 @@ const router = createRouter({
         {
           path: 'student_applications',
           component: AdminStudentApplications
+        },
+        {
+          path: 'hired_students',
+          component: AdminHiredStudents
         },
         {
           path: 'drive/:id',

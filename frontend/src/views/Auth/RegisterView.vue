@@ -29,7 +29,7 @@
             </form>
 
     </div>
-    <HowToRegister/>
+    
     <Footer/>
     
 </template>

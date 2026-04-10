@@ -8,35 +8,72 @@ const students = ref([])
 const route = useRoute()
 
 async function fetchShortlistedStudents() {
-  const token = localStorage.getItem('token')
-  if (!token) {
-    localStorage.clear()
-    window.location.href = '/login'
-    return
-  }
-
-  try {
-    const response = await axios.get('http://127.0.0.1:5000/company/shortlisted_students', {
-      params: {
-        search: (route.query.search || '').toString()
-      },
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    students.value = response.data
-  } catch (error) {
-    if (error.response?.status === 401 || error.response?.status === 422) {
-      localStorage.clear()
-      window.location.href = '/login'
-      return
+    const token = localStorage.getItem('token')
+    if (!token) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return
     }
-    message.value = 'failed to load shortlisted students'
-  }
+
+    try {
+        const response = await axios.get('http://127.0.0.1:5000/company/shortlisted_students', {
+        params: {
+            search: (route.query.search || '').toString()
+        },
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+        })
+
+        students.value = response.data
+    } catch (error) {
+        if (error.response?.status === 401 || error.response?.status === 422) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return
+        }
+        message.value = 'failed to load shortlisted students'
+    }
 }
 
 async function viewResume(application_id) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return
+    }
+
+    try {
+        const response = await axios.get(
+        `http://127.0.0.1:5000/company/application_resume/${application_id}`,
+        {
+            headers: {
+            Authorization: `Bearer ${token}`
+            },
+            responseType: 'blob'
+        }
+        )
+
+        const fileURL = window.URL.createObjectURL(new Blob([response.data]))
+        window.open(fileURL, '_blank')
+
+        setTimeout(() => {
+        window.URL.revokeObjectURL(fileURL)
+        }, 1000)
+
+        message.value = 'resume opened successfully'
+    } catch (error) {
+        if (error.response?.status === 401) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return
+        }
+        message.value = 'failed to download resume'
+    }
+}
+
+async function hireStudent(application_id) {
   const token = localStorage.getItem('token')
   if (!token) {
     localStorage.clear()
@@ -45,31 +82,25 @@ async function viewResume(application_id) {
   }
 
   try {
-    const response = await axios.get(
-      `http://127.0.0.1:5000/company/application_resume/${application_id}`,
+    const response = await axios.patch(
+      `http://127.0.0.1:5000/company/application_status/${application_id}`,
+      { status: 2 },
       {
         headers: {
           Authorization: `Bearer ${token}`
-        },
-        responseType: 'blob'
+        }
       }
     )
 
-    const fileURL = window.URL.createObjectURL(new Blob([response.data]))
-    window.open(fileURL, '_blank')
-
-    setTimeout(() => {
-      window.URL.revokeObjectURL(fileURL)
-    }, 1000)
-
-    message.value = 'resume opened successfully'
+    message.value = 'candidate hired successfully'
+    fetchShortlistedStudents()
   } catch (error) {
-    if (error.response?.status === 401 || error.response?.status === 422) {
+    if (error.response?.status === 401) {
       localStorage.clear()
       window.location.href = '/login'
       return
     }
-    message.value = error.response?.data?.message || 'failed to download resume'
+    message.value ='failed to hire candidate'
   }
 }
 
@@ -101,6 +132,7 @@ watch(
           <th>Student Email</th>
           <th>Apply Date</th>
           <th>Resume</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -114,6 +146,9 @@ watch(
           <td>{{ stu.application_date }}</td>
           <td>
             <button @click="viewResume(stu.application_id)" :disabled="!stu.resume_path">view resume</button>
+          </td>
+          <td>
+            <button @click="hireStudent(stu.application_id)">hire</button>
           </td>
         </tr>
       </tbody>

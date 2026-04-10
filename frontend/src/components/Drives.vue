@@ -252,7 +252,6 @@ watch(
             <div v-if="message" style="padding: 10px; background-color: #f5f5f5; color: cadetblue; text-decoration: overline;"><p>{{ message }}</p></div>
     
             <div id="awaiting_drive" v-if="isAdmin()">
-                <p style="color: chocolate;">Total Number Of Ongoing Drives is {{ approved_drive.length }}</p>
                 <p style="color: chocolate;">Total Number Of Awaiting Drives is {{ awaiting_drive.length }}</p>
                 <h1>Awaiting Drives</h1><br>
                 <div class="table">
@@ -300,6 +299,7 @@ watch(
             <br>
             <div id="approved_drive">
                 <h1>Ongoing Drives</h1><br>
+                <p style="color: chocolate;">Total Number Of Ongoing Drives is {{ approved_drive.length }}</p>
                 <div class="table">
                     <table v-if="approved_drive.length>0">
                     <thead>

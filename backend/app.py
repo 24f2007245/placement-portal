@@ -1,37 +1,32 @@
+import os
 from flask import Flask      # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
-import os
-from flask_jwt_extended import JWTManager    # pyright: ignore[reportMissingImports]
-from flask_cors import CORS             
-load_dotenv()
-app= Flask(__name__)
 
-CORS(app,origin="http://localhost:5173")
 
-app.config["JWT_SECRET_KEY"]='XYCHHORANADANPASSHAICOMPLEX'
-jwt=JWTManager(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 from models import db, User, Role
-db.init_app(app)
+from flask_jwt_extended import JWTManager    # pyright: ignore[reportMissingImports]
+from flask_cors import CORS  
+from paths import api, cache     
+
+jwt=JWTManager()
+load_dotenv()
+
+def create_app():
+    app= Flask(__name__)
+    app.config["JWT_SECRET_KEY"]='XYCHHORANADANPASSHAICOMPLEX'
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+    app.config["CACHE_TYPE"]='RedisCache'
+    app.config["CACHE_REDIS_URL"]='redis://localhost:6379'
+
+    CORS(app,origin=["http://localhost:5173"])
 
 
+    db.init_app(app)
+    cache.init_app(app)         #cache initialize ho raha h flask app ke saath
+    api.init_app(app)           # api initialise ho raha h flask app ke saath
+    jwt.init_app(app)
 
-
-# importing api and cache 
-# from paths.py
-
-from paths import api, cache
-
-app.config["CACHE_TYPE"]='RedisCache'
-app.config["CACHE_REDIS_URL"]='redis://localhost:6379/0'
-
-cache.init_app(app)         #cache initialize ho raha h flask app ke saath
-api.init_app(app)           # api initialise ho raha h flask app ke saath
-
-#___________________________________
-
-if __name__=='__main__':
     with app.app_context():
         db.create_all()
 
@@ -53,7 +48,7 @@ if __name__=='__main__':
 
         is_admin=User.query.filter_by(user_email='admin@admin.com').first()
         if not is_admin:
-            admin_role=Role.query.filter_by(name='admin').first()
+            
             admin=User(
                 user_email='admin@admin.com',
                 user_password=os.getenv("PASSWORD"), 
@@ -63,6 +58,18 @@ if __name__=='__main__':
             db.session.add(admin)
             db.session.commit()
 
+    return app
 
-    app.run(debug=True)
+
+
+
+# importing api and cache 
+# from paths.py
+
+#__________run app_________________________
+
+if __name__=='__main__':
+
+
+    create_app().run(debug=True)
 

@@ -28,7 +28,8 @@ async function fetchApplications() {
         })
 
         applications.value = response.data
-    } catch (error) {
+        
+    } catch(error) {
         if (error.response?.status === 401) {
         localStorage.clear()
         window.location.href = '/login'
@@ -41,14 +42,18 @@ async function fetchApplications() {
 onMounted(() => {
     fetchApplications()
 })
+
+
+
 </script>
 
 <template>
     <p v-if="message">{{ message }}</p>
     <div id="apps">
         <h1>My Applications</h1><br>
+        
         <div class="table">
-            <table v-if="applications.length > 0">
+        <table v-if="applications.length > 0">
         <thead>
             <tr>
             <th>Application ID</th>
@@ -79,6 +84,14 @@ onMounted(() => {
 <style scoped>
 #apps {
   margin-top: 20px;
+}
+
+.export-actions {
+    margin-bottom: 12px;
+}
+
+.export-actions button {
+    margin-right: 8px;
 }
 
 h1 {

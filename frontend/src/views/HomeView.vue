@@ -38,10 +38,11 @@ function register_lnk() {
 
   <div id="faq">
     <h2>Frequently Asked Questions</h2>
-    <p>For Students</p>
+    
 
     <div>
-      <p>Is registration free?<br>Yes, it's completely free.</p>
+      <p>Is registration free?<br>Yes, Registration is free.</p>
+      <p>Can i change my email after registration? <br>No, You will not be ableto change you email once registered; you can only update your profile with extra fields for student like resume, address, phone_no etc.</p>
     </div>
   </div>
   <Footer/>
@@ -64,10 +65,14 @@ main {
  }
 #faq p {
   padding: 15px;
+  color: #f5f5f5;
+}
+#faq h2{
+  color: #f5f5f5;
 }
 
 #faq {
-  background-color: #f5f5f5;
+  background: linear-gradient(90deg,forestgreen,white);
   padding: 30px;
 
 }

@@ -1,11 +1,15 @@
 from flask_restful import Resource, Api        # pyright: ignore[reportMissingImports]
 from flask import request, jsonify, send_file                # pyright: ignore[reportMissingImports]
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity      # pyright: ignore[reportMissingImports]
-from models import db, User, Role, PlacementsDrives, StudentProfile, Applications, CompanyProfile 
+
+
+from models import db, User, Role, PlacementsDrives, StudentProfile, Applications, CompanyProfile
+
 from datetime import datetime
 import os
 from flask_caching import Cache             # pyright: ignore[reportMissingImports]
 
+# from mail_server import send_email
 
 api=Api()
 cache= Cache()
@@ -151,7 +155,7 @@ class PlacementDrive(Resource):
                 "branch": drive.branch,
                 "cgpa": drive.cgpa,
                 "year": drive.year,
-                "application_deadline": drive.application_deadline.isoformat() if drive.application_deadline else None,
+                "application_deadline": drive.application_deadline.isoformat(),
                 "status": drive.status
             }, 200
 
@@ -166,7 +170,7 @@ class PlacementDrive(Resource):
                 "branch": drive.branch,
                 "cgpa": drive.cgpa,
                 "year": drive.year,
-                "application_deadline": drive.application_deadline.isoformat() if drive.application_deadline else None,
+                "application_deadline": drive.application_deadline.isoformat(),
                 "status": drive.status
             })
         
@@ -318,7 +322,7 @@ class CompanyDrives(Resource):
                 "branch": drive.branch,
                 "cgpa": drive.cgpa,
                 "year": drive.year,
-                "application_deadline": drive.application_deadline.isoformat() if drive.application_deadline else None,
+                "application_deadline": drive.application_deadline.isoformat(),
                 "status": drive.status
             })
 
@@ -338,6 +342,43 @@ class CompanyDrives(Resource):
 
 
 api.add_resource(CompanyDrives, '/company/drives')
+
+
+
+# counts____________________________________________________-
+# company dashboard ka
+
+class CompanyDashboardStats(Resource):
+    @jwt_required()
+    def get(self):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'company':
+            return {"message": "not authorized"}, 403
+
+        company_profile = CompanyProfile.query.get(current_user.user_id)
+        drives = PlacementsDrives.query.filter_by(company_id=current_user.user_id).all()
+
+        drives_data = []
+        total_applicants = 0
+        for drive in drives:
+            applicants_count = Applications.query.filter_by(drive_id=drive.drive_id).count()
+            total_applicants += applicants_count
+            drives_data.append({
+                "drive_id": drive.drive_id,
+                
+                "applicants_count": applicants_count,
+            })
+
+        return {
+            
+            "total_drives": len(drives_data),
+            "total_applicants": total_applicants,
+            "company_profile": drives_data,
+        }, 200
+
+
+api.add_resource(CompanyDashboardStats, '/company/dashboard_stats')
 
 
 class CompanyDriveApplications(Resource):
@@ -391,42 +432,73 @@ class CompanyDriveApplications(Resource):
 api.add_resource(CompanyDriveApplications, '/company/drive_applications/<int:drive_id>')
 
 
+# company is shortlisting student or changing status of student application
+# application for drives
+
+
+
+# note: celery
+# here
+
+
 class CompanyApplicationStatus(Resource):
     @jwt_required()
     def patch(self, application_id):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
         if not current_user or current_user.role.name != 'company':
-            return {"message": "not authorized"}, 403
+            return {"message": "not authorized"},403
 
         application = Applications.query.get(application_id)
         if not application:
-            return {"message": "application not found"}, 404
+            return {"message": "application not found"},404
 
         drive = PlacementsDrives.query.get(application.drive_id)
         if not drive:
-            return {"message": "drive not found"}, 404
+            return {"message": "getting err while fetching drives"},404
 
         if drive.company_id != current_user.user_id:
-            return {"message": "not authorized"}, 403
+            return {"message": "you are not authorized"},403
 
-        data = request.get_json() or {}
+         # just checking till here
+
+        # getting json
+        # patch request
+
+        data = request.get_json()
         if "status" not in data:
-            return {"message": "status is required"}, 400
+            return {"message": "status is required"},400
 
         try:
             status = int(data["status"])
         except (TypeError, ValueError):
-            return {"message": "status must be an integer"}, 400
+            return {"message": "status must be an integer"},400
 
-        if status not in (1, 3):
-            return {"message": "invalid status"}, 400
+        if status not in (1, 2, 3):
+            return {"message": "invalid status"},400
 
+        previous_status = application.status
         application.status = status
         db.session.commit()
-        return {"message": "application status updated successfully"}, 200
 
+# ____________________________________________________________________
 
+#       celery implemented here 
+#       importing email_task
+
+# _____________________________________________________________________
+
+        if status == 1 and previous_status != 1:
+            
+            from mail_server import shortlisted_mail
+            shortlisted_mail.delay(application.application_id)
+            return {"message":"application status updated to shortlised; sheduled a mail successfully"}
+    
+        if status==2 and previous_status !=2:
+            from mail_server import hire_mail
+            hire_mail.delay(application_id)
+            return {"message":"applicant hired; mail sending sheduled "}
+        return {"message": "application status updated successfully"},200
 api.add_resource(CompanyApplicationStatus, '/company/application_status/<int:application_id>')
 
 
@@ -847,9 +919,6 @@ class StudentApplications(Resource):
 
 api.add_resource(StudentApplications, '/student/applications')
 
-
-
-
 #______________________END Student
 
 
@@ -879,6 +948,79 @@ class ApproveApplication(Resource):
         return{"message":"updated successfully"},200
 
 api.add_resource(ApproveApplication,"/approve_application/<int:company_id>")
+
+
+#________________________________________________________ 
+# 
+# dashboard showing summary
+
+class AdminDashboardStats(Resource):
+    @jwt_required()
+    def get(self):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'admin':
+            return {"message": "not authorized"}, 403
+
+        student_role = Role.query.filter_by(name='student').first()
+        company_role = Role.query.filter_by(name='company').first()
+
+        student_count = User.query.filter_by(role_id=student_role.id, status=1).count() if student_role else 0
+        company_count = User.query.filter_by(role_id=company_role.id, status=1).count() if company_role else 0
+        drive_count = PlacementsDrives.query.count()
+
+        return {
+            "total_students": student_count,
+            "total_companies": company_count,
+            "total_drives": drive_count,
+        }, 200
+
+
+api.add_resource(AdminDashboardStats, '/admin/dashboard_stats')
+
+
+class AdminHiredStudents(Resource):
+    @jwt_required()
+    def get(self):
+        user_email = get_jwt_identity()
+        current_user = User.query.filter_by(user_email=user_email).first()
+        if not current_user or current_user.role.name != 'admin':
+            return {"message": "not authorized"}, 403
+
+        hired_apps = Applications.query.filter_by(status=2).all()
+        result = []
+        for app in hired_apps:
+            drive = PlacementsDrives.query.get(app.drive_id)
+            student_user = User.query.get(app.student_id)
+            result.append({
+                "application_id": app.application_id,
+                "drive_id": app.drive_id,
+                "job_title": drive.job_title if drive else None,
+                "company_id": drive.company_id if drive else None,
+                "student_id": app.student_id,
+                "student_name": student_user.user_name if student_user else None,
+                "student_email": student_user.user_email if student_user else None,
+                "application_date": app.application_date.isoformat() if app.application_date else None,
+                "status": app.status,
+            })
+
+        search = request.args.get('search', '').strip().lower()
+        if search:
+            result = [
+                row for row in result
+                if search in str(row.get('application_id', '')).lower()
+                or search in str(row.get('drive_id', '')).lower()
+                or search in str(row.get('job_title', '')).lower()
+                or search in str(row.get('company_id', '')).lower()
+                or search in str(row.get('student_id', '')).lower()
+                or search in str(row.get('student_name', '')).lower()
+                or search in str(row.get('student_email', '')).lower()
+            ]
+
+        return jsonify(result)
+
+
+api.add_resource(AdminHiredStudents, '/admin/hired_students')
 
 
 class DriveApplications(Resource):

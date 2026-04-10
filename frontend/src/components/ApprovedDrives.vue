@@ -47,6 +47,7 @@ onMounted(() => {
 })
 </script>
 <template>
+    
     <p v-if="message">{{ message }}</p>
             <div id="all_drives">
                 <h1>Placements Drives</h1><br>
