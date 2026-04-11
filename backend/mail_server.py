@@ -4,7 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from celery_thing import celery_app
-from models import Applications, User, PlacementsDrives, Role
+from models import Applications
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -42,30 +42,27 @@ FROM_EMAIL = 'admin@pcell.com'
 def shortlisted_mail(application_id):
     from app import db
     
-    # print('Task received at stage 1',application_id)
-    application = Applications.query.get(application_id)
 
+    application= Applications.query.get(application_id)
     if not application:
         return "Application not found"
 
-    # assuming relationship exists
     applicant =application.student_p.usr_s
-
     if not applicant:
         return "Applicant not found"
 
     subject = "Congratulations on getting shortlisted"
-
     body = f"""
-    Dear {applicant.user_name},<br>
+        Dear {applicant.user_name},<br>
 
-    We are pleased to inform you that your application 
-    (ID: {application.application_id}) has been <b>shortlisted</b>.<br><br>
-
-    Please log in to the portal to check further details.<br>
-    We will notify you about the next steps soon.<br><br>
-
-    """
+        We are pleased to inform you that your application 
+        (ID: {application.application_id}) has been <b>shortlisted</b> for in-person interview.<br>
+        please, find you interview details- <br>
+        you have to reach within 7 days from the date of this email at company brach, and report there .
+<br><br>
+        Please log in to the portal to check further details.<br>
+        <br><br>
+        """
 
     send_email.delay(applicant.user_email, subject, body)
 
@@ -97,7 +94,7 @@ def hire_mail(application_id):
     (ID: {application.application_id}) has been selected. You are hired.<br><br>
 
     Please log in to the portal to check further details.<br>
-    We will notify you about the next steps soon.<br><br>
+    You will get offer letter by the company side.<br><br>
 
     """
 

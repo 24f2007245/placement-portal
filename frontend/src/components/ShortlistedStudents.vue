@@ -27,7 +27,7 @@ async function fetchShortlistedStudents() {
 
         students.value = response.data
     } catch (error) {
-        if (error.response?.status === 401 || error.response?.status === 422) {
+        if (error.response?.status === 401) {
         localStorage.clear()
         window.location.href = '/login'
         return
@@ -74,46 +74,46 @@ async function viewResume(application_id) {
 }
 
 async function hireStudent(application_id) {
-  const token = localStorage.getItem('token')
-  if (!token) {
+const token = localStorage.getItem('token')
+if (!token) {
     localStorage.clear()
     window.location.href = '/login'
     return
-  }
+}
 
-  try {
+try {
     const response = await axios.patch(
-      `http://127.0.0.1:5000/company/application_status/${application_id}`,
-      { status: 2 },
-      {
+    `http://127.0.0.1:5000/company/application_status/${application_id}`,
+    { status: 2 },
+    {
         headers: {
-          Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`
         }
-      }
+    }
     )
 
-    message.value = 'candidate hired successfully'
+    message.value = 'hired and sheduled mail(applicant will receive a mail) sucessfully,'
     fetchShortlistedStudents()
-  } catch (error) {
+} catch (error) {
     if (error.response?.status === 401) {
-      localStorage.clear()
-      window.location.href = '/login'
-      return
+    localStorage.clear()
+    window.location.href = '/login'
+    return
     }
     message.value ='failed to hire candidate'
-  }
+}
 }
 
 onMounted(() => {
-  fetchShortlistedStudents()
+    fetchShortlistedStudents()
 })
 
 watch(
-  () => route.query.search,
-  () => {
-    fetchShortlistedStudents()
-  }
-)
+    () => route.query.search,
+    () => {
+        fetchShortlistedStudents()
+    }
+    )
 </script>
 
 <template>

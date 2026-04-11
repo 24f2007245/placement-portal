@@ -66,7 +66,7 @@ def create_app():
 # importing api and cache 
 # from paths.py
 
-#__________run app_________________________
+#__________ye app ko run karne ke liye h_________________________
 
 if __name__=='__main__':
 

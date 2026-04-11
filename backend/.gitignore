@@ -5,3 +5,5 @@ venv
 .env
 uploads
 mail.py
+tasks.py
+dump.rdb

@@ -21,6 +21,53 @@ def unique_str():
     return str
 
 
+# ________________________________________________________________________
+
+# IMPORTANT ALL API ENDPOINTS HERE
+
+# GET /
+# POST /register
+# POST /login
+
+# POST /drives
+# GET /drives
+# GET /drives/<int:drive_id>
+# POST /apply_drive/<int:drive_id>
+# PATCH /approve_drive/<int:drive_id>
+# DELETE /admin/remove_drive/<int:drive_id>
+
+# GET /company_profile/<int:company_id>
+# POST /company/profile
+# GET /company/drives
+
+# GET /company/dashboard_stats
+# GET /company/drive_applications/<int:drive_id>
+# PATCH /company/application_status/<int:application_id>
+# GET /company/application_resume/<int:application_id>
+# GET /company/shortlisted_students
+# GET /company_application
+# GET /admin/registered_company
+# DELETE /admin/remove_company/<int:company_id>
+# GET /admin/registered_students
+# GET /admin/student_applications
+# DELETE /admin/remove_student/<int:student_id>
+# GET /student_profile
+# PUT /student_profile
+# GET /student_profile/resume
+# GET /student/applications
+# PATCH /approve_application/<int:company_id>
+# GET /admin/dashboard_stats
+# GET /admin/hired_students
+# GET /admin/drive_applications/<int:drive_id>
+
+
+
+
+# END OF LISTING API ENDPOINTS
+# ______________________________________________________________________________________
+
+
+
 #decorder for Admin
 
 # def admin(fun):
@@ -89,11 +136,14 @@ api.add_resource(Register,'/register')
 class Login(Resource):
     def post(self):
         data=request.get_json()
+
         is_user=User.query.filter_by(user_email=data['email'], user_password=data['password']).first()
         if not is_user:
             return {'message':'invalid email or password'},401
         if is_user and is_user.status==2:
             return {'message':'your application is not approved yet, once it approved you can login'},401
+
+            # IMPORTANT TOKEN CREATION KIYA H
         access_token=create_access_token(identity=is_user.user_email)
         return {"message": "user logged in successfully","access_token":access_token,"user_id":is_user.user_id,"email":is_user.user_email,"role":is_user.role.name,"user_name":is_user.user_name},200
     
@@ -302,6 +352,60 @@ api.add_resource(RemoveDrive, '/admin/remove_drive/<int:drive_id>')
 
 # Company ___________________________
 
+
+
+
+class ComProfile(Resource):
+    @jwt_required()
+    def get(self,company_id):
+        # email=get_jwt_identity()
+        # curr_usr= User.query.filter_by(user_email=)
+        # NOT RESTRICTED TO ONLY FOR COMPANY OTHER ROLES ALSO BE ABLE TO GET COMPANY PROFILE
+        company=CompanyProfile.query.get(company_id)
+        if company:
+            return {
+                "company_id":company.company_id,
+                "company_description":company.company_description,
+                "hr_no":company.hr_contact,
+                "website":company.website
+            }
+        return {"message":"not found"}
+
+
+    @jwt_required()
+    def put(self):
+        email = get_jwt_identity()
+        curr_usr = User.query.filter_by(user_email=email).first()
+
+        if not curr_usr or curr_usr.role.name != 'company':
+            return {"message": "not authorized"}, 403
+
+        data = request.get_json()
+
+        profile = CompanyProfile.query.filter_by(company_id=curr_usr.user_id).first()
+
+        if not profile:
+            profile = CompanyProfile(company_id=curr_usr.user_id)
+            db.session.add(profile)
+
+        profile.company_description = data.get('company_description')
+        profile.hr_contact = data.get('hr_no')
+        profile.website = data.get('website')
+
+        db.session.commit()
+
+        return {"message": "update successful"}, 200
+    
+
+api.add_resource(ComProfile,'/company_profile/<int:company_id>','/company/profile')
+
+
+
+
+
+
+
+
 class CompanyDrives(Resource):
     @jwt_required()
     # @cache.cached(timeout=30)
@@ -504,7 +608,6 @@ api.add_resource(CompanyApplicationStatus, '/company/application_status/<int:app
 
 class CompanyApplicationResume(Resource):
     @jwt_required()
-    @cache.cached(timeout=30)
     def get(self, application_id):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()

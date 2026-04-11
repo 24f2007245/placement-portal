@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink,RouterView } from 'vue-router';
+import { RouterLink,RouterView,useRouter } from 'vue-router';
 import { ref,onMounted} from 'vue';
 import axios from 'axios';
 
@@ -13,6 +13,12 @@ const stats = ref({
     total_applicants: 0,
     drives: 0,
 })
+
+const router=useRouter()
+const name =localStorage.getItem('user_name')
+const company_id=localStorage.getItem('user_id')
+
+
 
 async function fetchDashboardStats() {
     const token = localStorage.getItem('token')
@@ -39,6 +45,12 @@ async function fetchDashboardStats() {
         message.value = error.response?.data?.message || 'failed to load dashboard stats'
     }
 }
+
+
+function companyDetails(company_id){
+    router.push(`/company/${company_id}`)
+}
+
 onMounted(() => {
     fetchDashboardStats()
 })
@@ -54,10 +66,12 @@ onMounted(() => {
                 <RouterLink to="/company/view_drives" class="nav_element">view_drives</RouterLink>
                 <RouterLink to="/company/create_drives" class="nav_element">create_drives</RouterLink>
                 <RouterLink to="/company/shortlisted_students" class="nav_element">shortlisted_students</RouterLink>
+                <RouterLink to="/company/profile" class="nav_element">Company_profile</RouterLink>
             </div>
             <div id="flex_box">
                 <div class="box"><p>Total Drives</p><h3>{{ stats.total_drives }}</h3></div>
                 <div class="box"><p>Total Applicants</p><h3>{{ stats.total_applicants }}</h3></div>
+                <div class="box" @click="companyDetails(company_id)"><p>{{ name }} Details</p><p>click here</p></div>
                 <!-- <div class="box"><p>Drives</p><h3>{{ stats.drives }}</h3></div> -->
             </div>
             <router-view />
@@ -108,11 +122,20 @@ onMounted(() => {
     #nav_link {
         flex-wrap: wrap;
     }
+    
 
     /* #rest_con{
         margin-top: 10px;
     } */
 }
+
+@media(max-width:500px){
+   
+    #flex_box{
+        display: inline;
+     }
+}
+
 
 .nav_element {
     color: #2980b9;

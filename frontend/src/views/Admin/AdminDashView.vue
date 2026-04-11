@@ -96,6 +96,15 @@ onMounted(() => {
     }
     
 }
+
+@media(max-width:500px){
+   
+    #flex_box{
+        display: inline;
+     }
+}
+
+
 #content_nav{
     margin-top: 20px;
     padding: 10px;

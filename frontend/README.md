@@ -42,3 +42,9 @@ npm run build
 ```sh
 npm run lint
 ```
+
+
+
+
+# adding pwa(progessive web app)- add to desktop feature
+npm install vite-plugin-pwa@latest

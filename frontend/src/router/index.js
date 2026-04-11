@@ -15,6 +15,8 @@ import AdminHiredStudents from '@/components/AdminHiredStudents.vue'
 import CompanyDriveApplications from '@/components/CompanyDriveApplications.vue'
 import ShortlistedStudents from '@/components/ShortlistedStudents.vue'
 import RegisteredStudent from '@/components/RegisteredStudent.vue'
+import CompanyProfile from '@/components/CompanyProfile.vue'
+import CompanyDetails from '@/components/CompanyDetails.vue'
 
 
 const router = createRouter({
@@ -116,6 +118,10 @@ const router = createRouter({
         {
           path: 'drive/:id',
           component:DrivesDetails
+        },
+        {
+          path: 'profile',
+          component:CompanyProfile
         }
       ]
     },
@@ -152,6 +158,11 @@ const router = createRouter({
       name: 'drive_details',
       component: DrivesDetails
     },
+    {
+      path: '/company/:id',
+      name: 'company_details',
+      component: CompanyDetails
+    }
   ],
 })
 

@@ -69,7 +69,7 @@ class CompanyProfile(db.Model):
     company_description=db.Column(db.String(1000))
     hr_contact=db.Column(db.String(20))
     website=db.Column(db.String(100))
-    approval_status=db.Column(db.Integer, default=0)  
+    # approval_status=db.Column(db.Integer, default=0)  
 
     # drive=db.relationship('PlacementsDrives', backref='company_p')
 

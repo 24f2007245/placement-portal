@@ -63,13 +63,12 @@ main {
  p{
   color: gray;
  }
+
 #faq p {
   padding: 15px;
   color: #f5f5f5;
 }
-#faq h2{
-  color: #f5f5f5;
-}
+
 
 #faq {
   background: linear-gradient(90deg,forestgreen,white);
@@ -78,14 +77,10 @@ main {
 }
 
 
-
-
-
 a {
   color: #2980B9;
   padding-top: 5px;
   /* text-decoration: underline; */
-
 }
 
 a:hover {

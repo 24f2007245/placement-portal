@@ -2,24 +2,17 @@
 
 // importing ___________
 import {ref, onMounted} from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute,useRouter } from 'vue-router'
 import axios from 'axios'
 import LogedinNav from './LogedinNav.vue'
 
 const drive_detail=ref(null)
-const applications = ref([])
+
 const message = ref('')
 const router=useRouter()
 const route=useRoute()
 const drive_id=route.params.id
-const role = localStorage.getItem('role')
 
-function statusText(status) {
-  if (status === 0) return 'Applied'
-  if (status === 1) return 'Shortlisted'
-  if (status === 2) return 'Selected'
-  if (status === 3) return 'Rejected'
-}
 
 // fetching drives_______________________________
 // get request
@@ -80,6 +73,11 @@ async function fetchDriveDetails(){
 //     }
 // }
 
+
+function companyDetail(company_id){
+    router.push(`/company/${company_id}`)
+}
+
 onMounted(() =>{
     fetchDriveDetails()
     // fetchApplications()
@@ -102,7 +100,7 @@ onMounted(() =>{
 
             <h3>About Company</h3>
             <p>Company Id: {{ drive_detail.company_id }}</p>
-            <p>Know more about company <button>know more</button></p>
+            <p>Know more about company <button @click="companyDetail(drive_detail.company_id)">know more</button></p>
 
             <h3>Eligibility Criteria</h3>
             <p>Branch:{{ drive_detail.branch }}</p>

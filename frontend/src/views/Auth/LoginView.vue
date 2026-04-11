@@ -57,6 +57,7 @@ async function submitForm(){
         localStorage.setItem('email',data.email)
         localStorage.setItem('role',data.role)
         localStorage.setItem('user_name',data.user_name)
+        localStorage.setItem('user_id',data.user_id)
         message.value="login successful Redirecting..."
         
         if (data.role=='student'){
