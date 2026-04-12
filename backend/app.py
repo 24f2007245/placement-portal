@@ -48,10 +48,10 @@ def create_app():
 
         is_admin=User.query.filter_by(user_email='admin@admin.com').first()
         if not is_admin:
-            
+            admin_role= Role.query.filter_by(name='admin').first()
             admin=User(
                 user_email='admin@admin.com',
-                user_password=os.getenv("PASSWORD"), 
+                user_password='admin', 
                 role=admin_role,
                 user_name='Admin' )
             

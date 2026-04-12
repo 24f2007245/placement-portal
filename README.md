@@ -85,16 +85,30 @@ Also work on small devices like mobile phones
 # How To Run 
 
 [port mentioned here is default one]
+-------------------------------------
+[create venv]
+'python3 -m venv venv'
+
+[go into venv]
+'source venv/bin/activate'
+
+[install dependencies]
+'pip3 install -r requirements.txt'
+------------------------------------
+
 To run virtual environment[for linux][make sure you are in backend/] 
 `source venv/bin/activate`
 
 To run app [backend] ->[port 5000]
 `python app.py`
 
+To install node pakage
+npm install
+
 To run frontend [frontend][make sure you are in frontend] ->[port 5173]
 `npm run dev` 
 
-To run redis-server ye karo shirf command agar pahle se running h to stop command [To Stop redis-server 'sudo systemctl stop redis'] ->[port 6379]  [process ko kill karne ke liye `sudo kill -9 PID`]
+To run redis-server ye karo shirf command agar pahle se running h to stop command [To Stop redis-server 'sudo systemctl stop redis'] ->[port 6379]  [process ko kill karne ke liye `sudo kill -9 PID`] [sudo lsof -i:6379]
 `redis-server`
 
 To run mailhog ->[port 8025]
@@ -104,4 +118,4 @@ To run celery worker command [backend/][activate venv ]
 `celery -A celery_thing.celery_app worker --loglevel=info`
 
 To run celery beat command [backend/][activate venv]
-`celery -A celery_thing.celery_app beat --loglevel=info`
+`celery -A celery_thing.celery_app worker --loglevel=info`
