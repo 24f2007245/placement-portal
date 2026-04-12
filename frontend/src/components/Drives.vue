@@ -249,7 +249,7 @@ watch(
 )
 </script>
 <template>
-            <div v-if="message" style="padding: 10px; background-color: #f5f5f5; color: cadetblue; text-decoration: overline;"><p>{{ message }}</p></div>
+            <div v-if="message" style="padding: 10px;  color: cadetblue; "><p>{{ message }}</p></div>
     
             <div id="awaiting_drive" v-if="isAdmin()">
                 <p style="color: chocolate;">Total Number Of Awaiting Drives is {{ awaiting_drive.length }}</p>

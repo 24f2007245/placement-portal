@@ -191,7 +191,7 @@ class PlacementDrive(Resource):
     
 
     @jwt_required()
-    # @cache.cached(timeout=30)
+    # @cache.cached(timeout=10)
     def get(self, drive_id=None):
         if drive_id is not None:
             drive = PlacementsDrives.query.get(drive_id)
@@ -408,7 +408,7 @@ api.add_resource(ComProfile,'/company_profile/<int:company_id>','/company/profil
 
 class CompanyDrives(Resource):
     @jwt_required()
-    # @cache.cached(timeout=30)
+    # @cache.cached(timeout=10)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email ).first()
@@ -646,7 +646,7 @@ api.add_resource(CompanyApplicationResume, '/company/application_resume/<int:app
 
 class CompanyShortlistedStudents(Resource):
     @jwt_required()
-    # @cache.cached(timeout=30)
+    # @cache.cached(timeout=10)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -705,7 +705,7 @@ api.add_resource(CompanyShortlistedStudents, '/company/shortlisted_students')
 
 class CompanyApplication(Resource):
     @jwt_required()
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=10)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -731,7 +731,7 @@ api.add_resource(CompanyApplication,'/company_application')
 
 class RegisteredCompany(Resource):
     @jwt_required()
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=10)
     def get(self):
         data=User.query.filter_by(status=1,role_id=2).all()
         result = []
@@ -790,7 +790,7 @@ api.add_resource(RemoveCompany, '/admin/remove_company/<int:company_id>')
 
 class Students(Resource):
     @jwt_required()
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=10)
     def get(self):
         data=User.query.filter_by(status=1,role_id=3).all()
         
@@ -837,7 +837,7 @@ class RemoveStudent(Resource):
 
     class AdminStudentApplications(Resource):
         @jwt_required()
-        # @cache.cached(timeout=30)
+        # @cache.cached(timeout=10)
         def get(self):
             user_email = get_jwt_identity()
             current_user = User.query.filter_by(user_email=user_email).first()
@@ -888,7 +888,7 @@ api.add_resource(RemoveStudent, '/admin/remove_student/<int:student_id>')
 class StudentProfileAction(Resource): 
 
     @jwt_required()
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=10)
     def get(self):
         email=get_jwt_identity()
         student=User.query.filter_by(user_email=email).first()
@@ -970,7 +970,7 @@ api.add_resource(StudentProfileAction,'/student_profile')
 
 class StudentResume(Resource):
     @jwt_required()
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=10)
     def get(self):
         email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=email).first()
@@ -997,7 +997,7 @@ api.add_resource(StudentResume, '/student_profile/resume')
 
 class StudentApplications(Resource):
     @jwt_required()
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=10)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -1128,7 +1128,7 @@ api.add_resource(AdminHiredStudents, '/admin/hired_students')
 
 class DriveApplications(Resource):
     @jwt_required()
-    @cache.cached(timeout=30)
+    @cache.cached(timeout=10)
     def get(self, drive_id):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()

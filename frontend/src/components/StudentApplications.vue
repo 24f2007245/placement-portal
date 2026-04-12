@@ -51,6 +51,11 @@ onMounted(() => {
     <p v-if="message">{{ message }}</p>
     <div id="apps">
         <p style="color: chocolate;">Total Number Of Applications is {{ applications.length }}</p>
+        <button>
+            <div id="export">
+            Export Your Data
+        </div>
+        </button>
         <h1>My Applications</h1><br>
         
         <div class="table">
@@ -98,4 +103,10 @@ onMounted(() => {
 h1 {
   color: #2980B9;
 }
+
+#export{
+    padding: 10px;
+    border: 1px solid #2980B9;
+}
+
 </style>
