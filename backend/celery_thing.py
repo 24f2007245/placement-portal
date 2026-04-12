@@ -23,11 +23,11 @@ celery_app.Task = FlaskTask
 celery_app.conf.beat_schedule = {
     'monthly-user-report': {
         'task': 'mail_server.send_monthly_report',  
-        'schedule': crontab(minute='*/4'),#hour=0, minute=0, day_of_month=1
+        'schedule': crontab(hour=0, minute=0, day_of_month=1),#hour=0, minute=0, day_of_month=1
     },
     'daily-reminder':{
         'task': 'mail_server.send_daily_reminder',
-        'schedule': crontab(minute='*/2'),         #minute='*/2' or hour=10, minute=0
+        'schedule': crontab(hour=10, minute=0),         #minute='*/2' | hour=10, minute=0
     },
 }   
       

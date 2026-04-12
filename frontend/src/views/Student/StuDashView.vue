@@ -19,6 +19,7 @@ import Welcome from '@/components/SideColumn.vue'
                 <RouterLink to="/student/drives" class="nav_ele">Placements_Drives</RouterLink>
                 <RouterLink to="/student/profile" class="nav_ele">Student_Profile</RouterLink>
                 <RouterLink to="/student/applications" class="nav_ele">My_Applications</RouterLink>
+                <RouterLink to="/student/past_drives" class="nav_ele">Past Drives</RouterLink>
              </div>
             <router-view/>
             <Footer/>

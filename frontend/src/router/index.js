@@ -17,6 +17,7 @@ import ShortlistedStudents from '@/components/ShortlistedStudents.vue'
 import RegisteredStudent from '@/components/RegisteredStudent.vue'
 import CompanyProfile from '@/components/CompanyProfile.vue'
 import CompanyDetails from '@/components/CompanyDetails.vue'
+import PastDrives from '@/components/PastDrives.vue'
 
 
 const router = createRouter({
@@ -81,6 +82,10 @@ const router = createRouter({
         {
           path: 'drive/:id',
           component:DrivesDetails
+        },
+        {
+          path: 'past_drives',
+          component:PastDrives
         }
       ]
     },
@@ -150,6 +155,10 @@ const router = createRouter({
         {
           path:'drives',
           component:Drives
+        },
+        {
+          path:'past_drives',
+          component:PastDrives
         }
       ]
     },

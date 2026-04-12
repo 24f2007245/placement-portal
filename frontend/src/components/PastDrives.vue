@@ -5,19 +5,19 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 const message = ref('')
-// const drives = ref([])
-const active_drives=ref([])
+const drives = ref([])
+const past_drives=ref([])
 
 
 // fetching drives ________________
 // with get request
 
-function onlyActiveDrive(drivesList) {
+function pastDrives(drives) {
     const today = new Date()
 
-    return drivesList.filter(drive => {
-        const deadline = new Date(drive.deadline)
-        return deadline >= today
+    return drives.filter(drive => {
+        const deadline = new Date(drive.application_deadline)
+        return deadline < today
     })
 }
 
@@ -38,8 +38,8 @@ const fetchDrives = async () => {
             }
         )
 
-        // drives.value = response.data
-        active_drives.value = onlyActiveDrive(response.data)
+        drives.value = response.data
+        past_drives.value = pastDrives(response.data)
     } catch (error) {
         console.error(error)
         if (error.response?.status === 401) {
@@ -61,9 +61,9 @@ onMounted(() => {
     
     <p v-if="message">{{ message }}</p>
             <div id="all_drives">
-                <h1>Placements Drives</h1><br>
+                <h1>Past Drives</h1><br>
                 <div class="table">
-                    <table>
+                    <table v-if="past_drives.length>0">
                     <tr>
                         <th>Drive ID</th>
                         <th>Company ID</th>
@@ -74,7 +74,7 @@ onMounted(() => {
                         <th>Deadline</th>
                     </tr>
 
-                    <tr v-for="drive in active_drives" :key="drive.drive_id">
+                    <tr v-for="drive in past_drives" :key="drive.drive_id">
                         <td>{{ drive.drive_id }}</td>
                         <td>{{ drive.company_id }}</td>
                         <td>{{ drive.job_title }}</td>
@@ -84,6 +84,7 @@ onMounted(() => {
                         <td>{{ drive.application_deadline }}</td>
                     </tr>
                     </table>
+                    <p v-else>no records</p>
                 </div>
             </div>
 </template>

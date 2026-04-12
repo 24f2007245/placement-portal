@@ -60,6 +60,7 @@ onMounted(() => {
                 <RouterLink to="/admin/registered_students" class="nav_ele">registered_students</RouterLink>
                 <RouterLink to="/admin/student_applications" class="nav_ele">student_applications</RouterLink>
                 <RouterLink to="/admin/hired_students" class="nav_ele">hired_students</RouterLink>
+                <RouterLink to="/admin/past_drives" class="nav_ele">Past Drives</RouterLink>
             </div>
             <p v-if="message">{{ message }}</p>
             <div id="flex_box">
