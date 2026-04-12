@@ -44,7 +44,7 @@ import Footer from '@/components/Footer.vue'
 const formData = reactive({
     name: 'kundan',
     email: '',
-    password: 'kundan',
+    password: '',
     role: 'student'
 })
 

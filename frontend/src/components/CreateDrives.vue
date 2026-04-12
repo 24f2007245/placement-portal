@@ -75,10 +75,10 @@ async function create_drive(){
                 <input type="text" v-model="formData.branch" id="branch" placeholder="branch"><br>
 
                 <label for="cgpa">CGPA:</label><br>
-                <input type="number" v-model="formData.cgpa" id="cgpa" placeholder="cgpa" step="0.1" required><br>
+                <input type="number" v-model="formData.cgpa" id="cgpa" min="5" max="10" placeholder="cgpa" step="0.1" required><br>
 
                 <label for="year">Year:</label><br>
-                <input type="number" v-model="formData.year" id="year" min="2000" max="2030" step="1" value="2025" required><br>
+                <input type="number" v-model="formData.year" id="year" min="0" max="4" step="1" value="2025" required placeholder="inwhich year you are"><br>
 
                 <label for="application_deadline">Application Deadline:</label><br>
                 <input type="date" v-model="formData.application_deadline" id="application_deadline" required><br><br>

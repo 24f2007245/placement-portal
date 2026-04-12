@@ -71,7 +71,7 @@ onMounted(() => {
             <div id="flex_box">
                 <div class="box"><p>Total Drives</p><h3>{{ stats.total_drives }}</h3></div>
                 <div class="box"><p>Total Applicants</p><h3>{{ stats.total_applicants }}</h3></div>
-                <div class="box" @click="companyDetails(company_id)"><p>{{ name }} Details</p><p>click here</p></div>
+                <div class="box" @click="companyDetails(company_id)"><p>{{ name }} Details</p><h3>-></h3></div>
                 <!-- <div class="box"><p>Drives</p><h3>{{ stats.drives }}</h3></div> -->
             </div>
             <router-view />
@@ -156,7 +156,7 @@ onMounted(() => {
     margin-left:10px ;
     margin-top: 20px;
     align-items: center;
-    color: #2980b9;
+    color: #f5f5f5;
     justify-content: center;
     background:linear-gradient(45deg,#f5f5f5, forestgreen);
 }

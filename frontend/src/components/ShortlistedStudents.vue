@@ -119,6 +119,7 @@ watch(
 <template>
   <p v-if="message">{{ message }}</p>
   <div>
+    <p style="color: chocolate;">Total Number Of Shortlisted Students is {{ students.length }}</p>
     <h1>Shortlisted Students</h1><br>
     <div class="table">
         <table v-if="students.length > 0">

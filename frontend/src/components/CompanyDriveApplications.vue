@@ -137,7 +137,7 @@ watch(
     <div>
         <button @click="router.back()">back</button>
         <p v-if="message">{{ message }}</p>
-
+        <p style="color: chocolate;">Total Number Of Applications is {{ applications.length }}</p>
         <h1> Applications for Drive {{ drive_id }} </h1><br>
         <div class="table">
             <table v-if="applications.length > 0">
@@ -162,7 +162,7 @@ watch(
                 <td>{{ app.application_date }}</td>
                 <td>{{ statusText(app.status) }}</td>
                 <td>
-                    <button @click="viewResume(app.application_id)" :disabled="!app.resume_path">view resume</button>
+                    <button @click="viewResume(app.application_id)">view resume</button>
                 </td>
                 <td>
                     <button @click="updateApplicationStatus(app.application_id, 1)">shortlist</button>

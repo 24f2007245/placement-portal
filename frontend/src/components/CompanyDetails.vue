@@ -73,7 +73,7 @@ companyDetails(route.params.id)
 <style scoped>
 #content{
     padding: 20px;
-    background:linear-gradient(90deg,forestgreen,white) ;
+    background:linear-gradient(90deg,#2980b9,forestgreen,white) ;
     
     /* padding-right: 50%; */
 }

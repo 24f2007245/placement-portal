@@ -28,7 +28,7 @@ async function fetchApplications() {
         })
 
         applications.value = response.data
-        
+
     } catch(error) {
         if (error.response?.status === 401) {
         localStorage.clear()
@@ -50,6 +50,7 @@ onMounted(() => {
 <template>
     <p v-if="message">{{ message }}</p>
     <div id="apps">
+        <p style="color: chocolate;">Total Number Of Applications is {{ applications.length }}</p>
         <h1>My Applications</h1><br>
         
         <div class="table">

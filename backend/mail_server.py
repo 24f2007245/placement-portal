@@ -3,8 +3,9 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from datetime import date, timedelta
 from celery_thing import celery_app
-from models import Applications
+from models import Applications, PlacementsDrives, User,Role
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -15,11 +16,13 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div style='background:linear-gradient(45deg, #2980b9,white); color:#f5f5f5; padding:10px;'>
-        <p>{body}</p>
+        Placement Cell
+    </div>
+    <div style='padding:10px;color:gray'>
+    <p>{body}</p>
         <p>Best Regards<br>
         Placement Cell<br>
-        admin@admin.com</p>
-    </div>
+        admin@admin.com</p></div>
     <footer style="padding: 10px; color: gray; background-color: #f5f5f5;">
         <p>All Rights Reserved &copy;, placement cell</p>
     </footer>
@@ -59,7 +62,7 @@ def shortlisted_mail(application_id):
         (ID: {application.application_id}) has been <b>shortlisted</b> for in-person interview.<br>
         please, find you interview details- <br>
         you have to reach within 7 days from the date of this email at company brach, and report there .
-<br><br>
+        <br><br>
         Please log in to the portal to check further details.<br>
         <br><br>
         """
@@ -120,5 +123,73 @@ def send_email(to_email, subject, body):
         server.send_message(msg)
 
 
-# if __name__ == "__main__":
-#     send_email('user@example.com', 'Congratulations you get shortlisted', 'Dear student, <br> i am happy to tell you your aplication got shortlisted')
+
+# DAILY REMAINDER FOR UPCOMING DRIVES
+
+@celery_app.task
+def send_daily_reminder():
+    today = date.today()
+    # upcoming = today + timedelta(days=1)
+    drives = PlacementsDrives.query.filter(
+        PlacementsDrives.application_deadline >= today,PlacementsDrives.status == 1
+    ).order_by(PlacementsDrives.application_deadline.asc()).limit(3).all()   
+    if not drives:
+        print("No upcoming drives")
+        return
+    users = User.query.join(Role).filter(Role.name == 'student').all()
+    emails = [user.user_email for user in users]
+
+    for email in emails:
+        subject='Remainder for upcoming drive'
+        body=f'''Dear student,<br>
+            there are many drives listed in portal visit and apply in which you are elligible. <br>
+            some drives with near deadline<br>
+            Today : {today}'''
+        for drive in drives:
+            body+=f"""<br>
+            Drive Id: {drive.drive_id},<br>
+            Job Title: {drive.job_title},<br>
+            Description: {drive.job_description},<br>
+            Company Id: {drive.company_id},<br>
+            Deadline: {drive.application_deadline}<br>
+            apply before deadline....
+            <br>
+            """
+        send_email.delay(email,subject,body)
+    return "email sent"
+
+
+@celery_app.task
+def send_monthly_report():
+    today = date.today()
+
+    #yesterday - ek din pahle
+    end = today - timedelta(days=1)
+
+    # last month ka 1 tarik
+    start = end.replace(day=1)
+
+    total_applications = Applications.query.filter(
+        Applications.application_date >= start,
+        Applications.application_date <= end
+    ).count()
+
+    selected_students = Applications.query.filter(
+        Applications.status == 2,
+        Applications.application_date >= start,
+        Applications.application_date <= end
+    ).count()
+    subject=f'''Report for {start} to {end}'''
+    report = f"""
+    Monthly Placement Report<br>
+    
+    
+    Total Applications received: {total_applications}<br>
+    Students Selected: {selected_students}<br>
+    """
+    body=f''' Admin,<br>
+     have a look on report of placement portal activity data from {start} to {end}<br>
+       {report}  
+    Thank You'''
+
+    send_email.delay('admin@admin.com',subject,body)

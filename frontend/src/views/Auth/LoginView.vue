@@ -30,7 +30,7 @@ import Footer from '@/components/Footer.vue'
 
 const formData = reactive({
     email: 'admin@admin.com',
-    password: 'admin'
+    password: ''
 })
 
 const message = ref('')

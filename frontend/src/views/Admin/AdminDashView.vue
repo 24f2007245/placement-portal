@@ -131,7 +131,7 @@ onMounted(() => {
     margin-left:10px ;
     margin-top: 20px;
     align-items: center;
-    color: #2980b9;
+    color: #f5f5f5;
     justify-content: center;
     background:linear-gradient(60deg,#f5f5f5, forestgreen);
 }

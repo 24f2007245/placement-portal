@@ -59,6 +59,7 @@ onMounted(() =>{
 </script>
 <template>
     <div id="registered_students">
+        <p style="color: chocolate;">Total Number Of Resgistered users is {{ rsusers.length }}</p>
                 <p v-if="message">{{ message }}</p>
                 <h1>Registered Students</h1><br>
                 <div class="table">
