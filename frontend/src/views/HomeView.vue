@@ -2,6 +2,7 @@
 import Footer from '@/components/Footer.vue';
 import HomeNav from '@/components/HomeNav.vue';
 import HowToRegister from '@/components/HowToRegister.vue';
+import PlacementStatics from '@/components/PlacementStatics.vue';
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -24,15 +25,11 @@ function register_lnk() {
   <div id="pattern">
     <div id="about">
       <h2>About Us</h2>
-      <p>Our Placement Portal offers a seamless and fully automated operational process for both students and
-        recruiters. This dynamic platform efficiently connects our students with leading job opportunities, while
-        providing recruiters with an automated and streamlined experience. Beyond traditional placement assistance, the
-        portal actively collaborates with industries committed to making a significant impact. Our core focus remains on
-        securing the best job offerings for our students while contributing to the growth and development of the broader
-        learning community. [source- IITM BS placement Portal]</p>
+      <p>We’ve built a placement portal that actually works as hard as you do. By automating the boring stuff, we’ve created a direct line between our students and top-tier recruiters. It’s more than just a job board—it’s a dynamic ecosystem where industry leaders and fresh talent meet to build what’s next. Our mission is simple: get our students into roles they love while helping our partners grow.</p>
     </div>
 
   </div>
+  <PlacementStatics />
 
   <HowToRegister />
 
@@ -71,7 +68,7 @@ main {
 
 
 #faq {
-  background: linear-gradient(90deg,forestgreen,white);
+  background: linear-gradient(150deg,forestgreen,white);
   padding: 30px;
 
 }
@@ -105,6 +102,10 @@ h2,
   /* justify-content: center; */
   color: #2980B9;
 
+}
+
+#faq h2{
+  color: #f5f5f5;
 }
 
 #about p {
