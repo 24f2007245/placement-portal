@@ -1,6 +1,6 @@
-import os
+# import os
 from flask import Flask      # pyright: ignore[reportMissingImports]
-from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
+# from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
 
 
 
@@ -8,9 +8,9 @@ from models import db, User, Role
 from flask_jwt_extended import JWTManager    # pyright: ignore[reportMissingImports]
 from flask_cors import CORS  
 from paths import api, cache     
-
+from werkzeug.security import generate_password_hash      # pyright: ignore[reportMissingImports]
 jwt=JWTManager()
-load_dotenv()
+# load_dotenv()
 
 def create_app():
     app= Flask(__name__)
@@ -51,7 +51,7 @@ def create_app():
             admin_role= Role.query.filter_by(name='admin').first()
             admin=User(
                 user_email='admin@admin.com',
-                user_password='admin', 
+                user_password=generate_password_hash('admin'),
                 role=admin_role,
                 user_name='Admin' )
             

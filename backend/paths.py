@@ -1,7 +1,7 @@
 from flask_restful import Resource, Api        # pyright: ignore[reportMissingImports]
 from flask import request, jsonify, send_file                # pyright: ignore[reportMissingImports]
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity      # pyright: ignore[reportMissingImports]
-
+from werkzeug.security import generate_password_hash, check_password_hash      # pyright: ignore[reportMissingImports]
 
 from models import db, User, Role, PlacementsDrives, StudentProfile, Applications, CompanyProfile
 
@@ -120,12 +120,12 @@ class Register(Resource):           #abhi registration risky h, logic will add l
 
         
         if data['role'] =='student' :
-            user=User(user_name=data['name'],user_email=data['email'],user_password=data['password'],role=role)
+            user=User(user_name=data['name'],user_email=data['email'],user_password=generate_password_hash(data['password']),role=role)
             db.session.add(user)
             db.session.commit()
             return {"message":"user registered successfully"},200
         else :
-            user=User(user_name=data['name'],user_email=data['email'],user_password=data['password'],role=role, status=2)
+            user=User(user_name=data['name'],user_email=data['email'],user_password=generate_password_hash(data['password']),role=role, status=2)
             db.session.add(user)
             db.session.commit()
             return {"message":"registration successful, wait for your application to be approved by the admin"},200
@@ -137,8 +137,10 @@ class Login(Resource):
     def post(self):
         data=request.get_json()
 
-        is_user=User.query.filter_by(user_email=data['email'], user_password=data['password']).first()
+        is_user=User.query.filter_by(user_email=data['email']).first()
         if not is_user:
+            return {'message':'invalid email or password'},401
+        if not check_password_hash(is_user.user_password, data['password']):
             return {'message':'invalid email or password'},401
         if is_user and is_user.status==2:
             return {'message':'your application is not approved yet, once it approved you can login'},401
