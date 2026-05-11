@@ -6,6 +6,9 @@ from email.mime.text import MIMEText
 from datetime import date, timedelta
 from celery_thing import celery_app
 from models import Applications, PlacementsDrives, User,Role
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -31,16 +34,65 @@ HTML_TEMPLATE = """
 """
 
 
+SMTP_HOST = os.getenv("SMTP_HOST")
+SMTP_PORT = os.getenv("SMTP_PORT")
+FROM_EMAIL = os.getenv("FROM_EMAIL")
+PASSWORD = os.getenv("MAILPASSWORD")
+
+
+
+@celery_app.task()
+def send_email(to_email, subject, body):
+    msg = MIMEMultipart()
+    msg['From'] = FROM_EMAIL
+    msg['To'] = to_email
+    msg['Subject'] = subject
+
+    
+    body = HTML_TEMPLATE.format(subject=subject, body=body)
+    msg.attach(MIMEText(body, 'html'))
+
+
+
+    #IMPORTANT ONE
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        server.starttls()                               #for secure connection
+        server.login(FROM_EMAIL, PASSWORD)
+        server.send_message(msg)
+
+@celery_app.task()
+def send_normal_email(to_email,subject,body):
+    msg = MIMEMultipart()
+    msg['From'] = FROM_EMAIL
+    msg['To'] = to_email
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+    #IMPORTANT ONE
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        server.starttls()                               #for secure connection
+        server.login(FROM_EMAIL, PASSWORD)
+        server.send_message(msg)
 
 
 
 
-SMTP_HOST = 'localhost'
-SMTP_PORT = 1025
-FROM_EMAIL = 'admin@pcell.com'
+@celery_app.task()
+def registration_confirmation(email):
+    subject='Registration Successful on placement portal'
+    body=f"""Dear {email},\n
+    Thank You on successful registration on placement portal.This is your registration confirmation mail,contact if facing issues on placement portal: placementcelladmin@gmail.com\n
+    Warm Regrds\n
+    placement cell
+
+    """
+    send_normal_email.delay(email, subject, body)
+    return 'registration confirmation mail'
 
 
-            # send_email.delay(current_user.email,'Congratulation on geting shortlisted',f"Dear {current_user.name},<br>We had received your application and now your application_id {application.application_id} gets shortlised. Visit the portal there you will find status as shortlised. We are looking forward with your interview; we will inform you later.<br>Thank You")
+# send_email.delay(current_user.email,'Congratulation on geting shortlisted',f"Dear {current_user.name},<br>We had received your application and now your application_id {application.application_id} gets shortlised. Visit the portal there you will find status as shortlised. We are looking forward with your interview; we will inform you later.<br>Thank You")
+
+
 @celery_app.task()
 def shortlisted_mail(application_id):
     from app import db
@@ -105,22 +157,6 @@ def hire_mail(application_id):
 
     return "Shortlisted email sent"
 
-
-
-
-@celery_app.task()
-def send_email(to_email, subject, body):
-    msg = MIMEMultipart()
-    msg['From'] = FROM_EMAIL
-    msg['To'] = to_email
-    msg['Subject'] = subject
-
-    
-    body = HTML_TEMPLATE.format(subject=subject, body=body)
-    msg.attach(MIMEText(body, 'html'))
-
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.send_message(msg)
 
 
 

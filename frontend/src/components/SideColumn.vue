@@ -48,7 +48,9 @@ watch(
 <template>
     <div id="main">
         <div id="div_search">
-            <h1>Welcome {{ user_name }}</h1><h3>{{ user_email }}</h3>
+            <h1>Welcome </h1>
+            <h1>{{ user_name }}</h1>
+            <!-- <h3>{{ user_email }}</h3> -->
             <!-- <label for="search"><h3>Search</h3></label> -->
             <span><input type="search" id="search" placeholder="search" v-model="search" @keyup.enter="applySearch"></span>
             <span><button type="submit" @click="applySearch">find</button></span>
@@ -92,7 +94,9 @@ watch(
 button{
         width: 60px;
     }
-    
+h1{
+    padding-top: 0px;
+} 
 
 
 @media(max-width:760px){

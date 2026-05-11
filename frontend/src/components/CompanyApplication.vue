@@ -1,7 +1,7 @@
 <script setup>
 
 
-import axios from 'axios'
+import api from '@/services/api'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -19,8 +19,8 @@ const fetchUsers = async () => {
         return}
 
     try{
-        const response = await axios.get(
-            'http://127.0.0.1:5000/company_application',
+        const response = await api.get(
+            '/company_application',
             {
                 params: {
                     search: (route.query.search || '').toString()
@@ -52,8 +52,8 @@ const approveApplication = async (user_id) => {
     }
 
     try{
-        const response = await axios.patch(
-            `http://127.0.0.1:5000/approve_application/${user_id}`,
+        const response = await api.patch(
+            `/approve_application/${user_id}`,
             { status: 1 },
             {
                 headers: {
@@ -81,8 +81,8 @@ const removeCompany = async (user_id) => {
         return}
 
     try{
-        const response = await axios.delete(
-            `http://127.0.0.1:5000/admin/remove_company/${user_id}`,
+        const response = await api.delete(
+            `/admin/remove_company/${user_id}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`

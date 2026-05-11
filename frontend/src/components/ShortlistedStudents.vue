@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
+import api from '@/services/api'
 
 const message = ref('')
 const students = ref([])
@@ -16,7 +16,7 @@ async function fetchShortlistedStudents() {
     }
 
     try {
-        const response = await axios.get('http://127.0.0.1:5000/company/shortlisted_students', {
+        const response = await api.get('/company/shortlisted_students', {
         params: {
             search: (route.query.search || '').toString()
         },
@@ -45,8 +45,8 @@ async function viewResume(application_id) {
     }
 
     try {
-        const response = await axios.get(
-        `http://127.0.0.1:5000/company/application_resume/${application_id}`,
+        const response = await api.get(
+        `/company/application_resume/${application_id}`,
         {
             headers: {
             Authorization: `Bearer ${token}`
@@ -82,8 +82,8 @@ if (!token) {
 }
 
 try {
-    const response = await axios.patch(
-    `http://127.0.0.1:5000/company/application_status/${application_id}`,
+    const response = await api.patch(
+    `/company/application_status/${application_id}`,
     { status: 2 },
     {
         headers: {

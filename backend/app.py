@@ -1,26 +1,49 @@
-# import os
-from flask import Flask      # pyright: ignore[reportMissingImports]
-# from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
-
-
+from flask import Flask     # pyright: ignore[reportMissingImports]
+from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
+# import psycopg2_binary                # pyright: ignore[reportMissingImports]
+from sqlalchemy import create_engine     # pyright: ignore[reportMissingImports]
 
 from models import db, User, Role
 from flask_jwt_extended import JWTManager    # pyright: ignore[reportMissingImports]
-from flask_cors import CORS  
+from flask_cors import CORS      # pyright: ignore[reportMissingImports]
 from paths import api, cache     
 from werkzeug.security import generate_password_hash      # pyright: ignore[reportMissingImports]
+
+import os
+load_dotenv()
 jwt=JWTManager()
-# load_dotenv()
+
 
 def create_app():
     app= Flask(__name__)
     app.config["JWT_SECRET_KEY"]='XYCHHORANADANPASSHAICOMPLEX'
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"]=300
+    
+
+    # getting variables
+    USER = os.getenv("user")
+    PASSWORD = os.getenv("password")
+    HOST = os.getenv("host")
+    PORT = os.getenv("port")
+    DBNAME = os.getenv("dbname")
+    
+    # Construct the SQLAlchemy connection string
+    DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+    
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+    engine = create_engine(DATABASE_URL)
+
     app.config["CACHE_TYPE"]='RedisCache'
     app.config["CACHE_REDIS_URL"]='redis://localhost:6379'
 
-    CORS(app,origin=["http://localhost:5173"])
+    CORS(app,origins=["http://localhost:5173",'http://127.0.0.1:5173'],supports_credentials=True)
 
+
+    try:
+        with engine.connect() as connection:
+            print("Connection successful!")
+    except Exception as e:
+            print(f"Failed to connect: {e}")
 
     db.init_app(app)
     cache.init_app(app)         #cache initialize ho raha h flask app ke saath
@@ -46,12 +69,16 @@ def create_app():
         
         db.session.commit()
 
-        is_admin=User.query.filter_by(user_email='admin@admin.com').first()
+        is_admin=User.query.filter_by(user_email='placementcelladmin@gmail.com').first()
         if not is_admin:
             admin_role= Role.query.filter_by(name='admin').first()
+
+            admin_password=os.getenv("ADMIN_PASSWORD")
+            if not admin_password:
+                raise ValueError("admin_password is not set.. ")
             admin=User(
-                user_email='admin@admin.com',
-                user_password=generate_password_hash('admin'),
+                user_email='placementcelladmin@gmail.com',
+                user_password=generate_password_hash(admin_password),
                 role=admin_role,
                 user_name='Admin' )
             

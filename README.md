@@ -122,4 +122,4 @@ To run celery worker command [backend/][activate venv ]\
 `celery -A celery_thing.celery_app worker --loglevel=info`
 
 To run celery beat command [backend/][activate venv]\
-`celery -A celery_thing.celery_app worker --loglevel=info`
+`celery -A celery_thing.celery_app beat --loglevel=info`

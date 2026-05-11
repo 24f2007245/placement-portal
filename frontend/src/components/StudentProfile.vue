@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 const students = ref({
 
@@ -22,7 +22,7 @@ async function fetchStudents() {
     }
 
     try {
-        const response = await axios.get('http://localhost:5000/student_profile', {
+        const response = await api.get('/student_profile', {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -60,7 +60,7 @@ async function downloadResume() {
     }
 
     try {
-        const response = await axios.get('http://localhost:5000/student_profile/resume', {
+        const response = await api.get('/student_profile/resume', {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -107,7 +107,7 @@ async function updateStudent() {
     }
 
     try {
-        const response = await axios.put('http://localhost:5000/student_profile', formData, {
+        const response = await api.put('/student_profile', formData, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

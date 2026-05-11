@@ -6,7 +6,6 @@ from app import create_app
 flask_app = create_app()
 
 celery_app = Celery(
-    'celery_thing',
     broker='redis://localhost:6379',
     backend='redis://localhost:6379',
     include=['mail_server']
@@ -27,7 +26,7 @@ celery_app.conf.beat_schedule = {
     },
     'daily-reminder':{
         'task': 'mail_server.send_daily_reminder',
-        'schedule': crontab(hour=10, minute=0),         #minute='*/2' | hour=10, minute=0
+        'schedule': crontab(1),         #minute='*/2' | hour=10, minute=0
     },
 }   
       

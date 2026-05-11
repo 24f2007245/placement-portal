@@ -17,7 +17,7 @@
                 <label for="role">Select Role: </label>
                 <select name="role" id="role" v-model="formData.role">
                     <option value="">choose role</option>
-                    <option value="student">student</option>
+                    <option value="student" disabled>student</option>
                     <option value="company">company</option>
                 </select><br><br>
                 <!-- <label for="role">Role:</label>
@@ -40,35 +40,28 @@ import {ref, reactive, onMounted} from 'vue'
 import HomeNav from '@/components/HomeNav.vue'
 import HowToRegister from '@/components/HowToRegister.vue'
 import Footer from '@/components/Footer.vue'
+import api from '@/services/api'
 
 const formData = reactive({
-    name: 'kundan',
+    name: '',
     email: '',
     password: '',
-    role: 'student'
+    role: ''
 })
 
 const message = ref('')
 
 console.log(formData)
 async function register(){
-    const response= await fetch('http://localhost:5000/register', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-        })
-        console.log(response)
-
-        const data= await response.json()
+    try {
+        const response = await api.post('/register', formData)
+        const data = response.data
         console.log(data)
-        if (!response.ok){
-            return message.value='Registration Failed: '+data.message
-        }else{
-            message.value='Registration Successful'
-            window.location.href ='/login'
-        }
+        message.value='Registration Successful, note:company need institute approval, kindly wait till'
+        // window.location.href ='/login'
+    } catch(error) {
+        message.value='Registration Failed: '+(error.response?.data?.message || error.message)
+    }
 
     }
 
@@ -78,30 +71,32 @@ async function register(){
 
 <style scoped>
 #reg-de{
-    background-color: #f5f5f5;
+    background-color: white;
     display: flex;
     justify-content: center;
-    padding: 70px;
+    /* place-items: center; */
+    padding: 100px;
+    color: #3b7ca6;
+    
+    
     /* align-items: center; */
     /* align-items: center; */
 }
 h1{
     /* font-size:larger; */
-    color: #2980b9;
+    font-size: 2.5rem;
+    color: #3b7ca6;
+    padding-bottom: 30px;
 }
 select{
     padding: 3px;
-    background-color: white;
-    color: #2980b9;
-    border: 1px solid #2980b9;
-    
+    background-color: #3b7ca6;
+    color: white;
+    border: 1px solid #3b7ca6;
+    width: 150px;
+    height: 30px;
 }
-@media(max-width:770px){
-    #reg-de{
-        display: block;
-        padding: 30px;
-    }
-}
+
 input{
     margin: 1px;
     /* padding: 0; */
@@ -109,9 +104,20 @@ input{
     line-height: 30px;
     /* border: none; */
 }
-select{
-    width: 150px;
-    height: 30px;
-}
 
+
+@media(max-width:600px){
+    #reg-de{
+        display: block;
+        justify-content: center;
+        /* place-items: center; */
+        padding: 30px;
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
+    input{
+        width: 250px;
+        
+    }
+}
 </style>

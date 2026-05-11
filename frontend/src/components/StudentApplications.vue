@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 const message = ref('')
 const applications = ref([])
@@ -21,7 +21,7 @@ async function fetchApplications() {
     }
 
     try {
-        const response = await axios.get('http://127.0.0.1:5000/student/applications', {
+        const response = await api.get('/student/applications', {
         headers: {
             Authorization: `Bearer ${token}`
         }

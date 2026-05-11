@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import api from '@/services/api'
 const rcusers = ref([])
 const route = useRoute()
 const message = ref('')
@@ -13,8 +14,8 @@ const message = ref('')
 
 const fetchUsers = async () => {
     try {
-        const response = await axios.get(
-            'http://127.0.0.1:5000/admin/registered_company',
+        const response = await api.get(
+            '/admin/registered_company',
             {
                 params: {
                     search: (route.query.search || '').toString()
@@ -48,8 +49,8 @@ async function removeCompany(user_id) {
     }
 
     try{
-        const response = await axios.delete(
-            `http://127.0.0.1:5000/admin/remove_company/${user_id}`,
+        const response = await api.delete(
+            `/admin/remove_company/${user_id}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`

@@ -2,7 +2,7 @@
 
 
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 const message = ref('')
 const drives = ref([])
@@ -29,8 +29,8 @@ const fetchDrives = async () => {
         return}
 
     try{
-        const response = await axios.get(
-            'http://127.0.0.1:5000/drives',
+        const response = await api.get(
+            '/drives',
             {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -64,7 +64,8 @@ onMounted(() => {
                 <h1>Past Drives</h1><br>
                 <div class="table">
                     <table v-if="past_drives.length>0">
-                    <tr>
+                    <thead>
+                        <tr>
                         <th>Drive ID</th>
                         <th>Company ID</th>
                         <th>Job Title</th>
@@ -73,6 +74,8 @@ onMounted(() => {
                         <th>Year</th>
                         <th>Deadline</th>
                     </tr>
+                    </thead>
+                    <tbody>
 
                     <tr v-for="drive in past_drives" :key="drive.drive_id">
                         <td>{{ drive.drive_id }}</td>
@@ -83,6 +86,7 @@ onMounted(() => {
                         <td>{{ drive.year }}</td>
                         <td>{{ drive.application_deadline }}</td>
                     </tr>
+                    </tbody>
                     </table>
                     <p v-else>no records</p>
                 </div>

@@ -3,7 +3,7 @@
 
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '@/services/api'
 
 const message = ref('')
 const applications = ref([])
@@ -31,8 +31,8 @@ async function fetchApplications() {
 
 
     try{
-        const response =await axios.get(
-        `http://127.0.0.1:5000/company/drive_applications/${drive_id}`,
+        const response =await api.get(
+        `/company/drive_applications/${drive_id}`,
         {
             params: {
             search: (route.query.search || '').toString()
@@ -62,8 +62,8 @@ async function updateApplicationStatus(application_id, status) {
     }
 
     try {
-        const response = await axios.patch(
-        `http://127.0.0.1:5000/company/application_status/${application_id}`,
+        const response = await api.patch(
+        `/company/application_status/${application_id}`,
         { status: status },
         {
             headers: {
@@ -93,8 +93,8 @@ async function viewResume(application_id) {
     }
 
     try {
-        const response = await axios.get(
-        `http://127.0.0.1:5000/company/application_resume/${application_id}`,
+        const response = await api.get(
+        `/company/application_resume/${application_id}`,
         {
             headers: {
             Authorization: `Bearer ${token}`

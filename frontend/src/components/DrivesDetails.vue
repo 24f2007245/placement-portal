@@ -3,7 +3,7 @@
 // importing ___________
 import {ref, onMounted} from 'vue'
 import { useRoute,useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '@/services/api'
 import LogedinNav from './LogedinNav.vue'
 
 const drive_detail=ref(null)
@@ -26,8 +26,8 @@ async function fetchDriveDetails(){
     }
 
     try {
-        const response =await axios.get(
-            `http://127.0.0.1:5000/drives/${drive_id}`,
+        const response =await api.get(
+            `/drives/${drive_id}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`

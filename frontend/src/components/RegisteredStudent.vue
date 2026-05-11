@@ -2,6 +2,7 @@
 
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
+import api from '@/services/api'
 
 
 const rsusers= ref([])
@@ -9,8 +10,8 @@ const message = ref('')
 const fetchStudent = async () => {
 
     try{
-        const res = await axios.get(
-            'http://127.0.0.1:5000/admin/registered_students',
+        const res = await api.get(
+            '/admin/registered_students',
             {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -37,8 +38,8 @@ async function removeStudent(student_id) {
     }
 
     try{
-        const response = await axios.delete(
-            `http://127.0.0.1:5000/admin/remove_student/${student_id}`,
+        const response = await api.delete(
+            `/admin/remove_student/${student_id}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`

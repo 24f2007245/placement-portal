@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
+import api from '@/services/api'
 
 const message = ref('')
 const hiredStudents = ref([])
@@ -16,7 +16,7 @@ async function fetchHiredStudents() {
   }
 
   try {
-    const response = await axios.get('http://127.0.0.1:5000/admin/hired_students', {
+    const response = await api.get('/admin/hired_students', {
       params: {
         search: (route.query.search || '').toString()
       },

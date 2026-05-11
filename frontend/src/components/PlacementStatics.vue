@@ -4,7 +4,7 @@
 <template>
     <div id="page_section">
         <div>
-        <h1 style="color: #2980b9;">
+        <h1 style="color: #3b7ca6;">
             Placement Statistics
         </h1><br>
         <p>"Our placement cell consistently bridges the gap between talent and opportunity. This year, our graduates achieved a robust Average Package of 15 LPA, reflecting the high industry demand for our students. Highlighting our global reach, our Highest Package reached a staggering 4.3 Cr, marking a milestone in premier international recruitment. We’re here to ensure our students land the best opportunities possible while helping the entire professional community thrive."</p>
@@ -22,16 +22,23 @@
     </div>
 </template>
 <style>
+h1{
+    /* padding-bottom: 10px; */
+    padding-top: 30px;
+}
 #flex_box{
     display: flex;
     align-items: center;
+    max-width: 1280px;
+    /* width: 100%; */
+    margin: 0 auto;
 }
 .two{
     display: flex;
 }
 .box{
     /* display: inline; */
-    padding: 50px;
+    padding: 60px;
     /* border: 2px solid #2980b9; */
     /* width: 60px; */
     margin-left:10px ;
@@ -45,6 +52,10 @@
 #page_section{
     padding: 20px;
     color: gray;
+    max-width: 1280px;
+    /* width: 100%; */
+    margin: 0 auto;
+
 }
 
 @media(max-width:850px){

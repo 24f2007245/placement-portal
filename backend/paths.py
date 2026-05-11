@@ -7,7 +7,14 @@ from models import db, User, Role, PlacementsDrives, StudentProfile, Application
 
 from datetime import datetime
 import os
-from flask_caching import Cache             # pyright: ignore[reportMissingImports]
+from dotenv import load_dotenv
+load_dotenv()
+
+from flask_caching import Cache                 
+
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 
 # from mail_server import send_email
 
@@ -28,6 +35,7 @@ def unique_str():
 # GET /
 # POST /register
 # POST /login
+# POST /auth/google
 
 # POST /drives
 # GET /drives
@@ -121,9 +129,9 @@ class Register(Resource):           #abhi registration risky h, logic will add l
         
         if data['role'] =='student' :
             user=User(user_name=data['name'],user_email=data['email'],user_password=generate_password_hash(data['password']),role=role)
-            db.session.add(user)
-            db.session.commit()
-            return {"message":"user registered successfully"},200
+            # db.session.add(user)
+            # db.session.commit()
+            return {"message":"register manually not in service, direct login with google, we will store your information "},400
         else :
             user=User(user_name=data['name'],user_email=data['email'],user_password=generate_password_hash(data['password']),role=role, status=2)
             db.session.add(user)
@@ -151,6 +159,74 @@ class Login(Resource):
     
 api.add_resource(Login ,'/login')
 
+
+
+class GoogleLogin(Resource):
+    def post(self):
+        data = request.get_json()
+        token = data.get("token")
+
+        if not token:
+            return {"message": "Token missing"}, 400
+
+
+        try:
+            idinfo = id_token.verify_oauth2_token(
+                token,
+                requests.Request(),
+                os.getenv("AUTHCLIENTID")
+            )
+
+            email = idinfo["email"]
+            name = idinfo.get("name")
+
+            # Check user in DB
+            user = User.query.filter_by(user_email=email).first()
+
+            if not user:
+                # create new user
+                try:
+                    role = Role.query.filter_by(name='student').first()
+                    if not role:
+                        return {"message": "student role not found"}, 500
+
+                    user = User(
+                        user_email=email,
+                        user_name=name,
+                        user_password="",  # no password for Google users
+                        role=role
+                        )
+                    db.session.add(user)
+                    db.session.commit()
+
+                    from mail_server import registration_confirmation
+                    registration_confirmation.delay(user.user_email)
+                except Exception as err:
+                    db.session.rollback()
+                    return {"message": f"registration failed: {str(err)}"}, 500
+
+            if user.status == 2:
+                return {'message': 'your application is not approved yet'}, 401
+
+            # Generate JWT 
+            access_token = create_access_token(identity=user.user_email)
+
+            return {
+                "message": "login successful",
+                "access_token": access_token,
+                "user_id": user.user_id,
+                "email": user.user_email,
+                "role": user.role.name,
+                "user_name": user.user_name
+            }, 200
+
+        except Exception as e:
+            print("Google Auth Error:", e)
+            return {"message": "Invalid Google token"}, 401
+
+api.add_resource(GoogleLogin,'/auth/google')
+
+
 # __________________________END auth logic
     
 
@@ -158,6 +234,24 @@ api.add_resource(Login ,'/login')
 # POST and GET for placement drives_________________
 
 class PlacementDrive(Resource):
+
+    @jwt_required()
+    def put(self, drive_id):
+            user_email=get_jwt_identity()
+            curr_usr=User.query.filter_by(user_email=user_email).first()
+            if not curr_usr:
+                return
+            if not curr_usr.role.name=='company':
+                return
+
+    #     data=request.get_json()
+    #     drive=PlacementsDrives.query.get(drive_id)
+    #     if not drive:
+    #         return {"message":"drive not found"},404
+    #     drive.job_title=data['job_title']
+    #     db.session.commit()
+
+
     @jwt_required()
     def post(self):
         data=request.get_json()
@@ -707,7 +801,7 @@ api.add_resource(CompanyShortlistedStudents, '/company/shortlisted_students')
 
 class CompanyApplication(Resource):
     @jwt_required()
-    @cache.cached(timeout=10)
+    # @cache.cached(timeout=10)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -792,7 +886,7 @@ api.add_resource(RemoveCompany, '/admin/remove_company/<int:company_id>')
 
 class Students(Resource):
     @jwt_required()
-    @cache.cached(timeout=10)
+    @cache.cached(timeout=30)
     def get(self):
         data=User.query.filter_by(status=1,role_id=3).all()
         
@@ -839,7 +933,7 @@ class RemoveStudent(Resource):
 
     class AdminStudentApplications(Resource):
         @jwt_required()
-        # @cache.cached(timeout=10)
+        # @cache.cached(timeout=30)
         def get(self):
             user_email = get_jwt_identity()
             current_user = User.query.filter_by(user_email=user_email).first()
@@ -890,7 +984,7 @@ api.add_resource(RemoveStudent, '/admin/remove_student/<int:student_id>')
 class StudentProfileAction(Resource): 
 
     @jwt_required()
-    @cache.cached(timeout=10)
+    # @cache.cached(timeout=10)
     def get(self):
         email=get_jwt_identity()
         student=User.query.filter_by(user_email=email).first()
@@ -972,7 +1066,6 @@ api.add_resource(StudentProfileAction,'/student_profile')
 
 class StudentResume(Resource):
     @jwt_required()
-    @cache.cached(timeout=10)
     def get(self):
         email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=email).first()
@@ -999,7 +1092,6 @@ api.add_resource(StudentResume, '/student_profile/resume')
 
 class StudentApplications(Resource):
     @jwt_required()
-    @cache.cached(timeout=10)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -1086,6 +1178,7 @@ api.add_resource(AdminDashboardStats, '/admin/dashboard_stats')
 
 class AdminHiredStudents(Resource):
     @jwt_required()
+    @cache.cached(timeout=30)
     def get(self):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()
@@ -1109,20 +1202,20 @@ class AdminHiredStudents(Resource):
                 "status": app.status,
             })
 
-        search = request.args.get('search', '').strip().lower()
-        if search:
-            result = [
-                row for row in result
-                if search in str(row.get('application_id', '')).lower()
-                or search in str(row.get('drive_id', '')).lower()
-                or search in str(row.get('job_title', '')).lower()
-                or search in str(row.get('company_id', '')).lower()
-                or search in str(row.get('student_id', '')).lower()
-                or search in str(row.get('student_name', '')).lower()
-                or search in str(row.get('student_email', '')).lower()
-            ]
+        # search = request.args.get('search', '').strip().lower()
+        # if search:
+        #     result = [
+        #         row for row in result
+        #         if search in str(row.get('application_id', '')).lower()
+        #         or search in str(row.get('drive_id', '')).lower()
+        #         or search in str(row.get('job_title', '')).lower()
+        #         or search in str(row.get('company_id', '')).lower()
+        #         or search in str(row.get('student_id', '')).lower()
+        #         or search in str(row.get('student_name', '')).lower()
+        #         or search in str(row.get('student_email', '')).lower()
+        #     ]
 
-        return jsonify(result)
+        # return jsonify(result)
 
 
 api.add_resource(AdminHiredStudents, '/admin/hired_students')
@@ -1130,7 +1223,7 @@ api.add_resource(AdminHiredStudents, '/admin/hired_students')
 
 class DriveApplications(Resource):
     @jwt_required()
-    @cache.cached(timeout=10)
+    # @cache.cached(timeout=10)
     def get(self, drive_id):
         user_email = get_jwt_identity()
         current_user = User.query.filter_by(user_email=user_email).first()

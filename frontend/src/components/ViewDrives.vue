@@ -4,7 +4,7 @@
 
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '@/services/api'
 
 const message = ref('')
 
@@ -34,8 +34,8 @@ const fetchDrives= async() => {
     }
 
     try{
-        const response = await axios.get(
-            'http://127.0.0.1:5000/company/drives',
+        const response = await api.get(
+            '/company/drives',
             {
                 params: {
                     search: (route.query.search || '').toString()

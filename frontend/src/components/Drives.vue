@@ -4,6 +4,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import api from '@/services/api'
 
 const message = ref('')
 const drives = ref([])
@@ -39,7 +40,7 @@ async function fetchStudentApplications() {
     }
 
     try {
-        const response = await axios.get('http://127.0.0.1:5000/student/applications', {
+        const response = await api.post('/student/applications/',drives.value ,{
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -83,8 +84,8 @@ const fetchDrives = async ()=>{
     }
 
     try{
-        const response =await axios.get(
-            'http://127.0.0.1:5000/drives',
+        const response =await api.get(
+            '/drives',
             {
                 params:{
                     search: (route.query.search || '').toString()
@@ -137,7 +138,7 @@ async function approveDrive(drive_id){
         return
     }
     try{
-        await axios.patch(`http://127.0.0.1:5000/approve_drive/${drive_id}`,
+        await api.patch(`/approve_drive/${drive_id}`,
             {status:1},
             {
                 headers:{
@@ -168,8 +169,8 @@ async function removeDrive(drive_id) {
     }
 
     try{
-        const response =await axios.delete(
-            `http://127.0.0.1:5000/admin/remove_drive/${drive_id}`,
+        const response =await api.delete(
+            `/admin/remove_drive/${drive_id}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -205,8 +206,8 @@ async function applyDrive(drive_id){
     }
 
     try{
-        const response= await axios.post(
-            `http://127.0.0.1:5000/apply_drive/${drive_id}`,
+        const response= await api.post(
+            `/apply_drive/${drive_id}`,
             {},
             {
                 headers: {

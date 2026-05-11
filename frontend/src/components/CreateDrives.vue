@@ -15,6 +15,7 @@ const formData = reactive({
 const message = ref('')
 
 import axios from 'axios'
+import api from '@/services/api'
 
 async function create_drive(){
     const token = localStorage.getItem('token')
@@ -24,15 +25,14 @@ async function create_drive(){
         return}
 
     try{
-        const response = await axios.post(
-            'http://localhost:5000/drives',
+        const response = await api.post('/drives',
             formData,
             {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
-            }
-        )
+            })
+
         message.value='Drives Created successfully'
 
     

@@ -6,6 +6,7 @@ import {ref} from 'vue'
 import axios from 'axios'
 import { useRoute,useRouter } from 'vue-router'
 import LogedinNav from './LogedinNav.vue'
+import api from '@/services/api'
 
 const route=useRoute()
 const router=useRouter()
@@ -27,7 +28,7 @@ async function companyDetails(company_id){
     }
 
     try {
-        const response = await axios.get(`http://localhost:5000/company_profile/${company_id}`, {
+        const response = await api.get(`/company_profile/${company_id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -73,12 +74,12 @@ companyDetails(route.params.id)
 <style scoped>
 #content{
     padding: 20px;
-    background:linear-gradient(150deg,#2980b9,#f5f5f5,#2980b9) ;
+    background:#f5f5f5 ;
     
     /* padding-right: 50%; */
 }
 p{
     padding: 3px;
-    color: #f5f5f5;
+    color: gray;
 }
 </style>

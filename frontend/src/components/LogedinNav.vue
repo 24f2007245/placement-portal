@@ -42,7 +42,7 @@ nav{
   justify-content:left;
   justify-content: space-between;
   /* justify-content: space-between; */
-  background-color:#2980b9;
+  background-color:#3b7ca6;
   padding: 10px;
   z-index: 1000;
   /* border: 1px solid gray; */
@@ -59,7 +59,7 @@ img{
 }
 button{
   border: 1px solid #f5f5f5;
-  background-color: #2980B9;
+  background-color: #3b7ca6;
   color: #f5f5f5;
   padding: 5px;
 }

@@ -1,6 +1,6 @@
 <script setup>
 import { ref,onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 const company = ref({
     company_id: '',
@@ -20,7 +20,7 @@ async function fetchCompany() {
     }
 
     try {
-        const response = await axios.get(`http://localhost:5000/company_profile/${id}`, {
+        const response = await api.get(`/company_profile/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -29,6 +29,8 @@ async function fetchCompany() {
         
         if (response.data?.company_id !== undefined) {
             company.value = response.data
+            console.log("response",response)
+            console.log("response data",response.data)
             message.value = ''
         } else {
             message.value = response.data?.message || ''
@@ -55,7 +57,7 @@ async function updateCompany() {
     }
 
     try {
-        const response = await axios.put('http://localhost:5000/company/profile', company.value, {
+        const response = await api.put('/company/profile', company.value, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

@@ -1,7 +1,7 @@
 <script setup>
 import { RouterLink,RouterView } from 'vue-router';
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import api from '@/services/api';
 import LogedinNav from '@/components/LogedinNav.vue';
 import SideBar from '@/components/SideColumn.vue';
 
@@ -23,7 +23,7 @@ async function fetchDashboardStats() {
     }
 
     try {
-        const response = await axios.get('http://127.0.0.1:5000/admin/dashboard_stats', {
+        const response = await api.get('/admin/dashboard_stats', {
             headers: {
                 Authorization: `Bearer ${token}`
             }

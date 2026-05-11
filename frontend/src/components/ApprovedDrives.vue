@@ -2,7 +2,7 @@
 
 
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 const message = ref('')
 // const drives = ref([])
@@ -29,8 +29,8 @@ const fetchDrives = async () => {
         return}
 
     try{
-        const response = await axios.get(
-            'http://127.0.0.1:5000/drives',
+        const response = await api.get(
+            '/drives',
             {
                 headers: {
                     Authorization: `Bearer ${token}`

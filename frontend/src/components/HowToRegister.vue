@@ -2,23 +2,26 @@
 </script>
 
 <template>
-  <div style="padding: 20px;">
-    <h2>Quick Guide on How to Register Yourself in the Portal</h2>
+  <div style="padding: 20px;" class="max_dev">
+    <h2 style="color: #3b7ca6;">Quick Guide on How to Register Yourself in the Portal</h2>
     <p style="color: chocolate;">We tried our best to keep portal simple so that everyone can get familier easily.</p>
   </div>
-  <div id="registeration_process">
+  <div id="registeration_process" class="max_dev">
 
     <div id="student">
 
 
 
       <div>
-        <p>-> Click on "Register"</p>
+        <!-- <p>-> Click on "Register"</p>
         <p>-> Enter your full name and email</p>
         <p>-> Create a password</p>
         <p>-> Select role as student</p>
         <p>-> Click on register</p>
         <p>-> All set, you are allowed to login</p>
+        <P>OR</P> -->
+        <P>-> You can direct login via google auth</P>
+        <p>-> We will store your info</p>
       </div>
       <h3>For Students</h3>
 
@@ -77,6 +80,12 @@
 
 h3 {
   padding: 10px;
+}
+
+.max_dev{
+  max-width: 1280px;
+    /* width: 100%; */
+    margin: 0 auto;
 }
 
 @media(max-width:780px) {

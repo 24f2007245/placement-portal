@@ -32,8 +32,8 @@ nav{
   justify-content:left;
   justify-content: space-between;
   /* justify-content: space-between; */
-  background-color:#2980B9;
-  padding: 10px;
+  background-color:#3b7ca6;
+  padding: 12px;
   z-index: 1000;
 }
 #nav_right{
