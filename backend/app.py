@@ -1,7 +1,7 @@
 from flask import Flask     # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
 from sqlalchemy import create_engine     # pyright: ignore[reportMissingImports]
-
+from sqlalchemy.pool import NullPool
 from models import db, User, Role
 from flask_jwt_extended import JWTManager    # pyright: ignore[reportMissingImports]
 from flask_cors import CORS      # pyright: ignore[reportMissingImports]
@@ -30,7 +30,7 @@ def create_app():
     DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
     
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(DATABASE_URL, poolclass=NullPool)
 
     REDIS_URL=os.getenv("REDIS_URL")
     app.config["CACHE_TYPE"]='RedisCache'
@@ -51,8 +51,10 @@ def create_app():
     jwt.init_app(app)
 
     with app.app_context():
-        db.create_all()
-
+        try:
+            db.create_all()
+        except Exception as e:
+            print("DB init failed:", e)
         admin_role= Role.query.filter_by(name='admin').first()
         company_role= Role.query.filter_by(name='company').first()
         student_role= Role.query.filter_by(name='student').first()
@@ -96,6 +98,6 @@ def create_app():
 #__________ye app ko run karne ke liye h_________________________
 app=create_app()
 if __name__=='__main__':
-    port = int(os.environ.get("APP_PORT", 5000))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 
