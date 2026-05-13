@@ -16,7 +16,7 @@ jwt=JWTManager()
 
 def create_app():
     app= Flask(__name__)
-    app.config["JWT_SECRET_KEY"]='XYCHHORANADANPASSHAICOMPLEX'
+    app.config["JWT_SECRET_KEY"]='JWT_SECRET'
     app.config["JWT_ACCESS_TOKEN_EXPIRES"]=300
     
 
@@ -33,10 +33,11 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
     engine = create_engine(DATABASE_URL)
 
+    REDIS_URL=os.getenv("REDIS_URL")
     app.config["CACHE_TYPE"]='RedisCache'
-    app.config["CACHE_REDIS_URL"]='redis://localhost:6379'
+    app.config["CACHE_REDIS_URL"]=REDIS_URL
 
-    CORS(app,origins=["http://localhost:5173",'http://127.0.0.1:5173'],supports_credentials=True)
+    CORS(app,origins=["https://placement-portal-omega-red.vercel.app"],supports_credentials=True)
 
 
     try:
@@ -96,7 +97,6 @@ def create_app():
 #__________ye app ko run karne ke liye h_________________________
 
 if __name__=='__main__':
-
-
-    create_app().run(debug=True)
+    main=create_app()
+    main.run()
 
