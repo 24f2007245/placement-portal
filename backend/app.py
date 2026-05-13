@@ -97,6 +97,6 @@ def create_app():
 #__________ye app ko run karne ke liye h_________________________
 
 if __name__=='__main__':
-    main=create_app()
-    main.run()
+    app=create_app()
+    app.run()
 
