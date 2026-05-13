@@ -1,6 +1,5 @@
 from flask import Flask     # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
-# import psycopg2_binary                # pyright: ignore[reportMissingImports]
 from sqlalchemy import create_engine     # pyright: ignore[reportMissingImports]
 
 from models import db, User, Role
@@ -95,8 +94,8 @@ def create_app():
 # from paths.py
 
 #__________ye app ko run karne ke liye h_________________________
-
+app=create_app()
 if __name__=='__main__':
-    app=create_app()
-    app.run()
+    port = int(os.environ.get("APP_PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
