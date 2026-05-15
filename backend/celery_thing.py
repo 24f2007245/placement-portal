@@ -20,6 +20,11 @@ celery_app = Celery(
 
 celery_app.conf.timezone = "Asia/Kolkata"
 celery_app.conf.enable_utc = False
+celery_app.conf.worker_disable_rate_limits = True
+celery_app.conf.worker_prefetch_multiplier = 1
+celery_app.conf.worker_log_color = False
+celery_app.conf.worker_hijack_root_logger = False
+celery_app.conf.CELERYD_FORCE_EXECV = True
 
 # Important for Redis Cloud SSL
 
