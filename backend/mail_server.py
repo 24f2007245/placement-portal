@@ -9,7 +9,7 @@ from celery_thing import celery_app
 from models import Applications, PlacementsDrives, User,Role
 from dotenv import load_dotenv
 import os
-from celery_thing import get_flask_app
+from app import app as flask_app
 load_dotenv()
 
 
@@ -20,7 +20,7 @@ PASSWORD = os.getenv("MAILPASSWORD")
 
 
 def render_html_template(subject, body):
-    with get_flask_app().app_context():
+    with flask_app.app_context():
         return render_template("mail_template.html", subject=subject, body=body)
 
 
