@@ -9,7 +9,14 @@ broker_url = os.getenv("REDIS_URL")
 result_backend = os.getenv("REDIS_URL")
 from app import create_app 
 
-flask_app = create_app()
+_flask_app = None
+
+
+def get_flask_app():
+    global _flask_app
+    if _flask_app is None:
+        _flask_app = create_app()
+    return _flask_app
 
 celery_app = Celery(
     "placement_portal",
@@ -35,7 +42,8 @@ celery_app.conf.enable_utc = False
     
 class FlaskTask(Task):
     def __call__(self, *args, **kwargs):
-        with flask_app.app_context():
+        app = get_flask_app()
+        with app.app_context():
             return self.run(*args, **kwargs)
 
 celery_app.Task = FlaskTask   
