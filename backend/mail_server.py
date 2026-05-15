@@ -4,40 +4,24 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from datetime import date, timedelta
+from flask import render_template
 from celery_thing import celery_app
 from models import Applications, PlacementsDrives, User,Role
 from dotenv import load_dotenv
 import os
+from app import app as flask_app
 load_dotenv()
-
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{subject}</title>
-</head>
-<body>
-    <div style='background:linear-gradient(45deg, #2980b9,white); color:#f5f5f5; padding:10px;'>
-        Placement Cell
-    </div>
-    <div style='padding:10px;color:gray'>
-    <p>{body}</p>
-        <p>Best Regards<br>
-        Placement Cell<br>
-        admin@admin.com</p></div>
-    <footer style="padding: 10px; color: gray; background-color: #f5f5f5;">
-        <p>All Rights Reserved &copy;, placement cell</p>
-    </footer>
-</body>
-</html>
-"""
 
 
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = os.getenv("SMTP_PORT")
 FROM_EMAIL = os.getenv("FROM_EMAIL")
 PASSWORD = os.getenv("MAILPASSWORD")
+
+
+def render_html_template(subject, body):
+    with flask_app.app_context():
+        return render_template("mail_template.html", subject=subject, body=body)
 
 
 
@@ -49,7 +33,7 @@ def send_email(to_email, subject, body):
     msg['Subject'] = subject
 
     
-    body = HTML_TEMPLATE.format(subject=subject, body=body)
+    body = render_html_template(subject, body)
     msg.attach(MIMEText(body, 'html'))
 
 
@@ -88,6 +72,18 @@ def registration_confirmation(email):
     """
     send_normal_email.delay(email, subject, body)
     return 'registration confirmation mail'
+
+
+@celery_app.task()
+def company_approval_email(to_email, company_name):
+    subject = "Your company is approved"
+    body = f"""
+        Dear {company_name},<br>
+        Congratulations! Your company account has been approved by the admin.<br>
+        You can now log in and start posting drives on the portal.<br><br>
+        """
+    send_email.delay(to_email, subject, body)
+    return "company approval mail"
 
 
 # send_email.delay(current_user.email,'Congratulation on geting shortlisted',f"Dear {current_user.name},<br>We had received your application and now your application_id {application.application_id} gets shortlised. Visit the portal there you will find status as shortlised. We are looking forward with your interview; we will inform you later.<br>Thank You")

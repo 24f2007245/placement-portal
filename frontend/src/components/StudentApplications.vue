@@ -21,6 +21,7 @@ async function fetchApplications() {
     }
 
     try {
+        message.value = ' '
         const response = await api.get('/student/applications', {
         headers: {
             Authorization: `Bearer ${token}`

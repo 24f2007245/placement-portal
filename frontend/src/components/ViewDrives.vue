@@ -26,6 +26,7 @@ function subDescription(description) {
 
 
 const fetchDrives= async() => {
+    message.value = ''
     const token = localStorage.getItem('token')
     if (!token) {
         localStorage.clear()
@@ -34,6 +35,7 @@ const fetchDrives= async() => {
     }
 
     try{
+        message.value = ' '
         const response = await api.get(
             '/company/drives',
             {

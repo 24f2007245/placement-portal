@@ -14,6 +14,7 @@ const message = ref('')
 
 const fetchUsers = async () => {
     try {
+        message.value = ' '
         const response = await api.get(
             '/admin/registered_company',
             {
@@ -49,6 +50,7 @@ async function removeCompany(user_id) {
     }
 
     try{
+        message.value = ' '
         const response = await api.delete(
             `/admin/remove_company/${user_id}`,
             {

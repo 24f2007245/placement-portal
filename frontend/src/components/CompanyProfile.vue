@@ -20,6 +20,7 @@ async function fetchCompany() {
     }
 
     try {
+        message.value = ' '
         const response = await api.get(`/company_profile/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -57,6 +58,7 @@ async function updateCompany() {
     }
 
     try {
+        message.value = ' '
         const response = await api.put('/company/profile', company.value, {
             headers: {
                 Authorization: `Bearer ${token}`,

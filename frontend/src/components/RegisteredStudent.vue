@@ -10,6 +10,7 @@ const message = ref('')
 const fetchStudent = async () => {
 
     try{
+        message.value = ' '
         const res = await api.get(
             '/admin/registered_students',
             {
@@ -38,6 +39,7 @@ async function removeStudent(student_id) {
     }
 
     try{
+        message.value = ' '
         const response = await api.delete(
             `/admin/remove_student/${student_id}`,
             {

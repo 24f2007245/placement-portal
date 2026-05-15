@@ -10,13 +10,18 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+import razorpay      # pyright: ignore[reportMissingImports]
+import hmac
+import hashlib
+
 from flask_caching import Cache                 
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
 
-# from mail_server import send_email
+
+
 
 api=Api()
 cache= Cache()
@@ -799,6 +804,77 @@ class CompanyShortlistedStudents(Resource):
 api.add_resource(CompanyShortlistedStudents, '/company/shortlisted_students')
 
 
+# Razorpay integration endpoints
+# class CreateOrder(Resource):
+#     def post(self):
+#         data = request.get_json()
+#         if not data:
+#             return {"message": "invalid request body"}, 400
+
+#         amount = data.get('amount')
+#         currency = data.get('currency', 'INR')
+#         receipt = data.get('receipt') or unique_str()
+
+#         if amount is None:
+#             return {"message": "amount is required (in paise)"}, 400
+#         try:
+#             amount = int(amount)
+#         except Exception:
+#             return {"message": "amount must be an integer (paise)"}, 400
+
+#         if amount < 100:
+#             return {"message": "minimum amount is 100 paise"}, 400
+
+#         key_id = os.getenv('RAZORPAY_KEY_ID')
+#         key_secret = os.getenv('RAZORPAY_KEY_SECRET')
+#         if not key_id or not key_secret:
+#             return {"message": "razorpay not configured"}, 500
+
+#         client = razorpay.Client(auth=(key_id, key_secret))
+#         try:
+#             order = client.order.create({
+#                 'amount': amount,
+#                 'currency': currency,
+#                 'receipt': receipt,
+#             })
+#             return {"order_id": order.get('id'), "amount": order.get('amount'), "currency": order.get('currency')}, 200
+#         except Exception as e:
+#             err = str(e)
+#             if '401' in err or 'Authentication' in err:
+#                 return {"message": "razorpay auth failed"}, 401
+#             return {"message": f"razorpay error: {err}"}, 500
+
+
+# class VerifyPayment(Resource):
+#     def post(self):
+#         data = request.get_json()
+#         if not data:
+#             return {"message": "invalid request body"}, 400
+
+#         order_id = data.get('razorpay_order_id')
+#         payment_id = data.get('razorpay_payment_id')
+#         signature = data.get('razorpay_signature')
+
+#         if not order_id or not payment_id or not signature:
+#             return {"message": "missing required payment fields"}, 400
+
+#         key_secret = os.getenv('RAZORPAY_KEY_SECRET')
+#         if not key_secret:
+#             return {"message": "razorpay not configured"}, 500
+
+#         payload = f"{order_id}|{payment_id}".encode()
+#         generated = hmac.new(key_secret.encode(), payload, hashlib.sha256).hexdigest()
+
+#         if hmac.compare_digest(generated, signature):
+#             return {"status": "ok", "message": "signature verified"}, 200
+#         else:
+#             return {"message": "signature mismatch"}, 400
+
+
+# api.add_resource(CreateOrder, '/api/create-order')
+# api.add_resource(VerifyPayment, '/api/verify-payment')
+
+
 class CompanyApplication(Resource):
     @jwt_required()
     # @cache.cached(timeout=10)
@@ -1025,6 +1101,9 @@ class StudentProfileAction(Resource):
         address = request.form.get('address')
         social_profile = request.form.get('social_profile')
 
+        student = StudentProfile.query.get(current_user.user_id)
+        filepath = None
+
         if file:
             # return {'message':'file not found'},400
             if not file.filename.endswith('.pdf'):
@@ -1036,10 +1115,15 @@ class StudentProfileAction(Resource):
             filepath = os.path.join(folder, f"{unique_name}.pdf")
 
             file.save(filepath)
+        elif not student:
+            return {"message": "resume is required for first update"}, 400
 
-        student = StudentProfile.query.get(current_user.user_id)
         if student:
-            student.resume_path = filepath
+            if filepath and student.resume_path and student.resume_path != filepath:
+                if os.path.exists(student.resume_path):
+                    os.remove(student.resume_path)
+            if filepath:
+                student.resume_path = filepath
             student.phone_no = phone_no
             student.address = address
             student.social_profile = social_profile
@@ -1056,7 +1140,7 @@ class StudentProfileAction(Resource):
         db.session.commit()
         
         
-        return {"message": "updated successfully", "resume_path": filepath}, 200
+        return {"message": "updated successfully", "resume_path": student.resume_path}, 200
 
 
 
@@ -1136,12 +1220,21 @@ class ApproveApplication(Resource):
 
         if not user:
             return {"message":"not exist"},404
+        previous_status = user.status
         if data and "status" in data:
             user.status=data["status"]
             # company=CompanyProfile(company_id=user.user_id,company_name=user.user_name)
             # db.session.add(company)
 
         db.session.commit()
+        if (
+            data
+            and data.get("status") == 1
+            and previous_status != 1
+            and user.role.name == "company"
+        ):
+            from mail_server import company_approval_email
+            company_approval_email.delay(user.user_email, user.user_name)
         return{"message":"updated successfully"},200
 
 api.add_resource(ApproveApplication,"/approve_application/<int:company_id>")

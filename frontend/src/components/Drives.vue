@@ -40,6 +40,7 @@ async function fetchStudentApplications() {
     }
 
     try {
+        message.value = ' '
         const response = await api.post('/student/applications/',drives.value ,{
             headers: {
                 Authorization: `Bearer ${token}`
@@ -84,6 +85,7 @@ const fetchDrives = async ()=>{
     }
 
     try{
+        message.value = ' '
         const response =await api.get(
             '/drives',
             {
@@ -138,6 +140,7 @@ async function approveDrive(drive_id){
         return
     }
     try{
+        message.value = ' '
         await api.patch(`/approve_drive/${drive_id}`,
             {status:1},
             {
@@ -169,6 +172,7 @@ async function removeDrive(drive_id) {
     }
 
     try{
+        message.value = ' '
         const response =await api.delete(
             `/admin/remove_drive/${drive_id}`,
             {
@@ -206,6 +210,7 @@ async function applyDrive(drive_id){
     }
 
     try{
+        message.value = ' '
         const response= await api.post(
             `/apply_drive/${drive_id}`,
             {},

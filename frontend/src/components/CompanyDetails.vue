@@ -28,6 +28,7 @@ async function companyDetails(company_id){
     }
 
     try {
+        message.value = ' '
         const response = await api.get(`/company_profile/${company_id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,

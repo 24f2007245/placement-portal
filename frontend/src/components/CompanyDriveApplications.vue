@@ -31,6 +31,7 @@ async function fetchApplications() {
 
 
     try{
+        message.value = ' '
         const response =await api.get(
         `/company/drive_applications/${drive_id}`,
         {
@@ -62,6 +63,7 @@ async function updateApplicationStatus(application_id, status) {
     }
 
     try {
+        message.value = ' '
         const response = await api.patch(
         `/company/application_status/${application_id}`,
         { status: status },
@@ -93,6 +95,7 @@ async function viewResume(application_id) {
     }
 
     try {
+        message.value = ' '
         const response = await api.get(
         `/company/application_resume/${application_id}`,
         {

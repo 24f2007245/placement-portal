@@ -1,6 +1,7 @@
 <template>
     <nav>
-      <span id="for_font" @click="indicate_index"><img src="../assets/logo.svg" ></span>
+      <div>
+        <span id="for_font" @click="indicate_index"><img src="../assets/logo.svg" ></span>
 
       <div id="nav_right">
         
@@ -8,6 +9,7 @@
         <span id="u_eml">{{ user_email }}</span>
         <button @click="logout">Logout</button>
     </div>
+      </div>
 
     </nav>
 </template>

@@ -1,8 +1,7 @@
 from flask import Flask     # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
-# import psycopg2_binary                # pyright: ignore[reportMissingImports]
 from sqlalchemy import create_engine     # pyright: ignore[reportMissingImports]
-
+from sqlalchemy.pool import NullPool
 from models import db, User, Role
 from flask_jwt_extended import JWTManager    # pyright: ignore[reportMissingImports]
 from flask_cors import CORS      # pyright: ignore[reportMissingImports]
@@ -16,7 +15,7 @@ jwt=JWTManager()
 
 def create_app():
     app= Flask(__name__)
-    app.config["JWT_SECRET_KEY"]='XYCHHORANADANPASSHAICOMPLEX'
+    app.config["JWT_SECRET_KEY"]='JWT_SECRET'
     app.config["JWT_ACCESS_TOKEN_EXPIRES"]=300
     
 
@@ -31,12 +30,13 @@ def create_app():
     DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
     
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(DATABASE_URL, poolclass=NullPool)
 
+    REDIS_URL=os.getenv("REDIS_URL")
     app.config["CACHE_TYPE"]='RedisCache'
-    app.config["CACHE_REDIS_URL"]='redis://localhost:6379'
+    app.config["CACHE_REDIS_URL"]=REDIS_URL
 
-    CORS(app,origins=["http://localhost:5173",'http://127.0.0.1:5173'],supports_credentials=True)
+    CORS(app,origins=["https://placement-portal-omega-red.vercel.app"],supports_credentials=True)
 
 
     try:
@@ -51,8 +51,10 @@ def create_app():
     jwt.init_app(app)
 
     with app.app_context():
-        db.create_all()
-
+        try:
+            db.create_all()
+        except Exception as e:
+            print("DB init failed:", e)
         admin_role= Role.query.filter_by(name='admin').first()
         company_role= Role.query.filter_by(name='company').first()
         student_role= Role.query.filter_by(name='student').first()
@@ -94,9 +96,7 @@ def create_app():
 # from paths.py
 
 #__________ye app ko run karne ke liye h_________________________
-
+app=create_app()
 if __name__=='__main__':
-
-
-    create_app().run(debug=True)
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

@@ -48,6 +48,7 @@ const message = ref('')
 
 
 async function submitForm(){
+    message.value = ''
     //console.log(formData)
     const response = await api.post('/login', formData)
 

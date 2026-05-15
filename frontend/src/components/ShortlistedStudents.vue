@@ -16,6 +16,7 @@ async function fetchShortlistedStudents() {
     }
 
     try {
+        message.value = ' '
         const response = await api.get('/company/shortlisted_students', {
         params: {
             search: (route.query.search || '').toString()
@@ -45,6 +46,7 @@ async function viewResume(application_id) {
     }
 
     try {
+        message.value = ' '
         const response = await api.get(
         `/company/application_resume/${application_id}`,
         {
@@ -82,6 +84,7 @@ if (!token) {
 }
 
 try {
+    message.value = ' '
     const response = await api.patch(
     `/company/application_status/${application_id}`,
     { status: 2 },

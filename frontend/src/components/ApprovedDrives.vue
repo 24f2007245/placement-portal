@@ -29,6 +29,7 @@ const fetchDrives = async () => {
         return}
 
     try{
+        message.value = ' '
         const response = await api.get(
             '/drives',
             {

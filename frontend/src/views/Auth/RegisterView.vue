@@ -22,6 +22,73 @@
                 </select><br><br>
                 <!-- <label for="role">Role:</label>
                 <input type="text" name="role" id="role" v-model="formData.role" placeholder="student" required><br> -->
+                <div v-if="formData.role==='company'" style="max-width: 310px;">
+                    <!-- <p>pay one time registration fee of RS 7 for a company registration</p>
+                    <button type="button" class="rzp-button1" @click="handlePay">Pay</button><br><br>
+                    <p v-if="paymentSuccess" style="color:green">Payment verified ✓</p>
+                    <p v-else style="color:#a33">Payment not completed</p>
+                    <p>
+                        async function handlePay(){
+                        message.value = ''
+                        try{
+                            // ensure checkout script
+                            await loadScript('https://checkout.razorpay.com/v1/checkout.js')
+
+                            // amount in paise (7 INR)
+                            const amount = 700
+
+                            const resp = await api.post('/api/create-order', { amount: amount, currency: 'INR' })
+                            const data = resp.data || resp
+                            const orderId = data.order_id || data.orderId || data.id
+                            if(!orderId){
+                                message.value = 'Failed to create order'
+                                return
+                            }
+
+                            const options = {
+                                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+                                amount: data.amount || amount,
+                                currency: data.currency || 'INR',
+                                name: 'Placement Portal',
+                                description: 'Company registration fee',
+                                order_id: orderId,
+                                handler: async function (response){
+                                    try{
+                                        await api.post('/api/verify-payment', {
+                                            razorpay_order_id: response.razorpay_order_id,
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_signature: response.razorpay_signature
+                                        })
+                                        paymentSuccess.value = true
+                                        message.value = 'Payment successful and verified'
+                                    }catch(err){
+                                        paymentSuccess.value = false
+                                        message.value = 'Payment verification failed'
+                                    }
+                                },
+                                modal: {
+                                    ondismiss: function(){
+                                        message.value = 'Payment cancelled'
+                                    }
+                                }
+                            }
+
+                            const rzp = new window.Razorpay(options)
+                            rzp.open()
+                            rzp.on('payment.failed', function (response){
+                                message.value = 'Payment failed: ' + (response.error && response.error.description ? response.error.description : '')
+                            })
+
+                        }catch(e){
+                            console.error(e)
+                            message.value = 'Payment initialization failed'
+                        }
+                    }
+
+                    </p> -->
+                    
+                    <p class="note">Note: this platform does not show its true nature it is not a real placement portal and not managed by anyone it is just one indivisual demo project. Do transaction with your own risks.</p>
+                </div>
 
                 <button type="submit" class="bld">Register</button><br><br>
                 <p>{{ message }}</p>
@@ -36,7 +103,7 @@
 
 <script setup>
 // import { RouterLink } from 'vue-router'
-import {ref, reactive, onMounted} from 'vue'
+import {ref, reactive} from 'vue'
 import HomeNav from '@/components/HomeNav.vue'
 import HowToRegister from '@/components/HowToRegister.vue'
 import Footer from '@/components/Footer.vue'
@@ -50,21 +117,25 @@ const formData = reactive({
 })
 
 const message = ref('')
-
 console.log(formData)
 async function register(){
+    message.value = ''
+
     try {
-        const response = await api.post('/register', formData)
-        const data = response.data
-        console.log(data)
-        message.value='Registration Successful, note:company need institute approval, kindly wait till'
-        // window.location.href ='/login'
+
+        const response = await api.post('/register', {
+            ...formData
+        })
+
+        message.value = 'Registration Successful'
+
     } catch(error) {
-        message.value='Registration Failed: '+(error.response?.data?.message || error.message)
-    }
 
+        message.value =
+            'Registration Failed: ' +
+            (error.response?.data?.message || error.message)
     }
-
+}
 
 
 </script>
@@ -111,9 +182,11 @@ input{
         display: block;
         justify-content: center;
         /* place-items: center; */
-        padding: 30px;
+        padding: 25px;
         padding-top: 50px;
         padding-bottom: 50px;
+        /* align-items: center; */
+        /* place-items: center; */
     }
     input{
         width: 250px;

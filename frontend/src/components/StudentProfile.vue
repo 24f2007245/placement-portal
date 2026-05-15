@@ -22,6 +22,7 @@ async function fetchStudents() {
     }
 
     try {
+        message.value = ' '
         const response = await api.get('/student_profile', {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -60,6 +61,7 @@ async function downloadResume() {
     }
 
     try {
+        message.value = ' '
         const response = await api.get('/student_profile/resume', {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -107,6 +109,7 @@ async function updateStudent() {
     }
 
     try {
+        message.value = ' '
         const response = await api.put('/student_profile', formData, {
             headers: {
                 Authorization: `Bearer ${token}`,

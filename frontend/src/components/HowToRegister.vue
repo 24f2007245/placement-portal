@@ -92,6 +92,14 @@ h3 {
   #registeration_process {
     display: block;
   }
+  #student,#company{
+    display: block;
+    background-color: #f5f5f5;
+  }
+  #student div,
+#company div {
+  text-align: left;
+}
 
 }
 </style>

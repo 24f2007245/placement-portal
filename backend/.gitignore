@@ -7,3 +7,4 @@ uploads
 mail.py
 tasks.py
 dump.rdb
+celerybeat-schedule

@@ -16,6 +16,7 @@ async function fetchHiredStudents() {
   }
 
   try {
+    message.value = ' '
     const response = await api.get('/admin/hired_students', {
       params: {
         search: (route.query.search || '').toString()

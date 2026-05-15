@@ -26,6 +26,7 @@ async function fetchDriveDetails(){
     }
 
     try {
+        message.value = ' '
         const response =await api.get(
             `/drives/${drive_id}`,
             {

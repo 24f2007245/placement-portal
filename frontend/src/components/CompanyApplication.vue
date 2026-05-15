@@ -19,6 +19,7 @@ const fetchUsers = async () => {
         return}
 
     try{
+        message.value = ' '
         const response = await api.get(
             '/company_application',
             {
@@ -52,6 +53,7 @@ const approveApplication = async (user_id) => {
     }
 
     try{
+        message.value = ' '
         const response = await api.patch(
             `/approve_application/${user_id}`,
             { status: 1 },
@@ -81,6 +83,7 @@ const removeCompany = async (user_id) => {
         return}
 
     try{
+        message.value = ' '
         const response = await api.delete(
             `/admin/remove_company/${user_id}`,
             {

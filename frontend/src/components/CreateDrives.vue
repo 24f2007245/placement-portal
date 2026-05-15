@@ -25,6 +25,7 @@ async function create_drive(){
         return}
 
     try{
+        message.value = ' '
         const response = await api.post('/drives',
             formData,
             {

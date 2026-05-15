@@ -99,7 +99,7 @@ function register_lnk() {
         <p id="q1">Is registration free?</p>
         <p id="a1" class="a">Yes, Registration is free.</p><br>
         <p id="q2">Can i change my email after registration?</p>
-        <p id="a2" class="a">No, You will not be ableto change you email once registered; you can only update your
+        <p id="a2" class="a">No, You will not be able to change your email once registered; you can only update your
           profile with extra fields for student like resume, address, phone_no etc.</p>
       </div>
     </div>
@@ -120,7 +120,7 @@ function register_lnk() {
         <button class="primary" @click="$router.push('/register')">
           Register
         </button>
-        <button class="secondary">Contact Support</button>
+        <button class="secondary"><a href="mailto:placementcelladmin@gmail.com" style="text-decoration: none;">Contact Support</a></button>
       </div>
     </div>
 
@@ -142,16 +142,23 @@ main {
   /* keeping it stationary */
   background-position: center;
   padding-bottom: 200px;
-  padding-top: 200px;
-
-
+  padding-top: 180px;
 }
+@media (max-width:1024px){
+  main{
+    padding-top: 100px;
+    padding-bottom: 100px;
+    
+  }
+}
+
 
 #blur{
   background-color: rgba(26, 51, 65, 0.2);
   backdrop-filter: blur(20px);
-  padding: 30px;
+  padding: 25px;
 }
+
 
 main p {
   color: white;
@@ -183,11 +190,11 @@ main p {
   display: none;
 } */
 
-#backg{
+/* #backg{
   background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZpgdEebc1XupRjHJcloEEw6RqEtxNLc96_Q&s');
   background-repeat: no-repeat;
   background-size: cover;
-}
+} */
 
 a {
   color: #3b7ca6;
@@ -208,7 +215,7 @@ a:hover {
   /* margin: 0 auto; */
   align-items: center;
   /* display: flex; */
-  padding: 30px;
+  padding: 25px;
   background-color: #f5f5f5;
   padding-top: 100px;
   padding-bottom: 100px;
@@ -274,6 +281,7 @@ main h1 {
     
     padding-bottom: 100px;
     padding-top: 100px;
+    overflow: hidden;
   }
   #blur{
     padding: 30px;
@@ -285,7 +293,7 @@ main h1 {
     color: #3b7ca6;
   }
   #faq{
-    padding: 20px;
+    padding: 25px;
   }
 }
 </style>

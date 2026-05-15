@@ -23,6 +23,7 @@ async function fetchApplications() {
     }
 
     try {
+        message.value = ' '
         const response = await api.get('/admin/student_applications', {
         params: {
             search: (route.query.search || '').toString()

@@ -1,16 +1,38 @@
 from celery import Celery, Task
 from celery.schedules import crontab
+import os
+from dotenv import load_dotenv
+# import ssl
+load_dotenv()
 
+broker_url = os.getenv("REDIS_URL")
+result_backend = os.getenv("REDIS_URL")
 from app import create_app 
 
 flask_app = create_app()
 
 celery_app = Celery(
-    broker='redis://localhost:6379',
-    backend='redis://localhost:6379',
+    "placement_portal",
+    broker=broker_url,
+    backend=result_backend,
     include=['mail_server']
 )
 
+celery_app.conf.timezone = "Asia/Kolkata"
+celery_app.conf.enable_utc = False
+
+# Important for Redis Cloud SSL
+
+# if broker_url.startswith("rediss://"):
+#     celery_app.conf.broker_use_ssl = {
+#         "ssl_cert_reqs": ssl.CERT_NONE
+#     }
+
+#     celery_app.conf.redis_backend_use_ssl = {
+#         "ssl_cert_reqs": ssl.CERT_NONE
+#     }
+
+    
 class FlaskTask(Task):
     def __call__(self, *args, **kwargs):
         with flask_app.app_context():
@@ -26,7 +48,6 @@ celery_app.conf.beat_schedule = {
     },
     'daily-reminder':{
         'task': 'mail_server.send_daily_reminder',
-        'schedule': crontab(1),         #minute='*/2' | hour=10, minute=0
+        'schedule': crontab(hour=10, minute=0),         #minute='*/2' | hour=10, minute=0
     },
 }   
-      

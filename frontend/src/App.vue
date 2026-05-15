@@ -46,8 +46,9 @@ body{
 
 @media(max-width:855px){
   #top_bar{
-    justify-content: space-around;
-   /* gap: 10px; */
+    justify-content: center;
+    gap: 10px;
+    overflow: hidden;
   }
 }
 @media(max-width:525px){
@@ -58,6 +59,7 @@ body{
   #top_bar{
     display: flex;
     justify-content: center;
+    overflow: hidden;
   }
 
 }
