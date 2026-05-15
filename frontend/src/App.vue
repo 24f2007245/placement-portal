@@ -1,7 +1,5 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import LoadingSpinner from '@/components/LoadingSpinner.vue'
-import { isLoading } from '@/services/loadingState'
 // import HelloWorld from './components/HelloWorld.vue'
 // import RegisterView from './views/Auth/RegisterView.vue';
 </script>
@@ -17,10 +15,6 @@ import { isLoading } from '@/services/loadingState'
     </div>
   </header>
   <!-- <h5>You Are In Home Page</h5> -->
-
-  <div v-if="isLoading" class="global-loader">
-    <LoadingSpinner />
-  </div>
 
   <RouterView />
 </template>
@@ -69,13 +63,5 @@ body{
   }
 
 }
-
-.global-loader {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 2000;
-}
-
 
 </style>

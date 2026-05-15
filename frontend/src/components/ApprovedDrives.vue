@@ -3,10 +3,12 @@
 
 import { ref, onMounted } from 'vue'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const message = ref('')
 // const drives = ref([])
 const active_drives=ref([])
+const isLoading = ref(false)
 
 
 // fetching drives ________________
@@ -29,6 +31,7 @@ const fetchDrives = async () => {
         return}
 
     try{
+        isLoading.value = true
         message.value = ' '
         const response = await api.get(
             '/drives',
@@ -49,6 +52,8 @@ const fetchDrives = async () => {
             return
         }
         message.value = "Failed to load drives"
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -63,6 +68,9 @@ onMounted(() => {
     <p v-if="message">{{ message }}</p>
             <div id="all_drives">
                 <h1>Placements Drives</h1><br>
+                <div v-if="isLoading" class="inline-loader">
+                    <LoadingSpinner label="Loading" />
+                </div>
                 <div class="table">
                     <table>
                     <tr>
@@ -92,6 +100,10 @@ onMounted(() => {
 #all_drives{
     color: #2980B9;
     margin-top: 30px;
+}
+
+.inline-loader{
+    margin: 8px 0 12px;
 }
 
 </style>

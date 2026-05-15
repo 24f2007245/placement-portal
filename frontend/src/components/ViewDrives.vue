@@ -5,6 +5,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const message = ref('')
 
@@ -13,6 +14,7 @@ const drives_awaiting = ref([])
 const drives_approved = ref([])
 const router = useRouter()
 const route = useRoute()
+const isLoading = ref(false)
 
 function subDescription(description) {
     if(!description){
@@ -35,6 +37,7 @@ const fetchDrives= async() => {
     }
 
     try{
+        isLoading.value = true
         message.value = ' '
         const response = await api.get(
             '/company/drives',
@@ -67,6 +70,8 @@ const fetchDrives= async() => {
             return
         }
         message.value = "Failed to load drives"
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -89,6 +94,9 @@ async function viewApplications(drive_id) {
     <p v-if="message">{{ message }}</p>
             <div id="drive_awaiting">
                 <h2>Awaiting Drives</h2><br>
+                <div v-if="isLoading" class="inline-loader">
+                    <LoadingSpinner label="Loading" />
+                </div>
                 <div class="table">
                     <table v-if="drives_awaiting.length>0">
                 <thead>
@@ -122,6 +130,9 @@ async function viewApplications(drive_id) {
             </div>
             <div id="approved_drives">
                 <h2>Your Approved Drives</h2><br>
+                <div v-if="isLoading" class="inline-loader">
+                    <LoadingSpinner label="Loading" />
+                </div>
                 <div class="table">
                     <table v-if="drives_approved.length>0">
                 <thead>
@@ -185,6 +196,10 @@ th,
 td {
     padding: 8px 10px;
     /* white-space: nowrap; */
+}
+
+.inline-loader{
+    margin: 8px 0 12px;
 }
 
 </style>

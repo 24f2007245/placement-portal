@@ -3,8 +3,8 @@
 // importing ________________________________
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const message = ref('')
 const drives = ref([])
@@ -14,6 +14,7 @@ const applied_drive_ids = ref([])
 const role=localStorage.getItem('role')
 const router=useRouter()
 const route=useRoute()
+const isLoading = ref(false)
 
 
 // functions____________________________________________
@@ -85,6 +86,7 @@ const fetchDrives = async ()=>{
     }
 
     try{
+        isLoading.value = true
         message.value = ' '
         const response =await api.get(
             '/drives',
@@ -117,6 +119,8 @@ const fetchDrives = async ()=>{
             window.location.href= '/login'
             return}
         message.value = "Failed to load drives"
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -260,6 +264,9 @@ watch(
             <div id="awaiting_drive" v-if="isAdmin()">
                 <p style="color: chocolate;">Total Number Of Awaiting Drives is {{ awaiting_drive.length }}</p>
                 <h1>Awaiting Drives</h1><br>
+                <div v-if="isLoading" class="inline-loader">
+                    <LoadingSpinner label="Loading" />
+                </div>
                 <div class="table">
                     <table v-if="awaiting_drive.length>0">
                     <thead>
@@ -305,6 +312,9 @@ watch(
             <br>
             <div id="approved_drive">
                 <h1>Ongoing Drives</h1><br>
+                <div v-if="isLoading" class="inline-loader">
+                    <LoadingSpinner label="Loading" />
+                </div>
                 <p style="color: chocolate;">Total Number Of Ongoing Drives is {{ approved_drive.length }}</p>
                 <div class="table">
                     <table v-if="approved_drive.length>0">
@@ -376,6 +386,10 @@ watch(
 .faded_btn{
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.inline-loader{
+    margin: 8px 0 12px;
 }
 
 

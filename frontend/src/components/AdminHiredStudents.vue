@@ -2,10 +2,12 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const message = ref('')
 const hiredStudents = ref([])
 const route = useRoute()
+const isLoading = ref(false)
 
 async function fetchHiredStudents() {
   const token = localStorage.getItem('token')
@@ -16,6 +18,7 @@ async function fetchHiredStudents() {
   }
 
   try {
+    isLoading.value = true
     message.value = ' '
     const response = await api.get('/admin/hired_students', {
       params: {
@@ -34,6 +37,8 @@ async function fetchHiredStudents() {
       return
     }
     message.value = error.response?.data?.message || 'failed to load hired students'
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -53,6 +58,9 @@ watch(
   <p v-if="message">{{ message }}</p>
   <div>
     <h1>Hired Students</h1><br>
+    <div v-if="isLoading" class="inline-loader">
+      <LoadingSpinner label="Loading" />
+    </div>
     <p style="color: chocolate;">Total Hired Students: {{ hiredStudents.length }}</p>
 
     <div class="table">
@@ -90,5 +98,9 @@ watch(
 <style scoped>
 h1 {
   color: #2980B9;
+}
+
+.inline-loader{
+  margin: 8px 0 12px;
 }
 </style>

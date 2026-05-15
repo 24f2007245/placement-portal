@@ -1,11 +1,19 @@
 <script setup>
-import axios from 'axios'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import DataCardList from '@/components/DataCardList.vue'
 const rcusers = ref([])
 const route = useRoute()
 const message = ref('')
+const isLoading = ref(false)
+
+const fields = [
+    { label: 'Company ID', key: 'user_id' },
+    { label: 'Company Name', key: 'user_name' },
+    { label: 'Company Email', key: 'user_email' },
+]
 
 
 
@@ -14,6 +22,7 @@ const message = ref('')
 
 const fetchUsers = async () => {
     try {
+        isLoading.value = true
         message.value = ' '
         const response = await api.get(
             '/admin/registered_company',
@@ -30,6 +39,8 @@ const fetchUsers = async () => {
         rcusers.value = response.data
     } catch (err) {
         console.log(err)
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -84,35 +95,15 @@ watch(
         <p style="color: chocolate;">Total Number Of Registered Company/Recruiter is {{ rcusers.length }}</p>
 
         <h1>Registered Companys</h1><br>
-        <div class="table">
-            <table>
-            <thead>
-                <tr>
-                    <th>Company ID</th>
-                    <th>Company Name</th>
-                    <th>Company Email</th>
-                    <th>Blacklist</th>
-                    <th>Remove</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr v-for="user in rcusers" :key="user.user_id">
-                    <td>{{ user.user_id }}</td>
-                    <td>{{ user.user_name }}</td>
-                    <td>{{ user.user_email }}</td>
-                    <td>
-                        <button class="dngr" @click="blackList(user.user_id)">
-                            blacklist
-                        </button>
-                    </td>
-                    <td>
-                        <button class="dngr" @click="removeCompany(user.user_id)">remove</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div v-if="isLoading" class="inline-loader">
+            <LoadingSpinner label="Loading" />
         </div>
+        <DataCardList :items="rcusers" :fields="fields" item-key="user_id" empty-text="no records">
+            <template #actions="{ item }">
+                <button class="dngr" @click="blackList(item.user_id)">blacklist</button>
+                <button class="dngr" @click="removeCompany(item.user_id)">remove</button>
+            </template>
+        </DataCardList>
     </div>
 </template>
 <style>
@@ -124,5 +115,9 @@ watch(
 
 #dngr {
     color: red;
+}
+
+.inline-loader{
+    margin: 8px 0 12px;
 }
 </style>

@@ -2,10 +2,12 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const message = ref('')
 const applications = ref([])
 const route = useRoute()
+const isLoading = ref(false)
 
 function statusText(status){
     if (status === 0) return 'Applied'
@@ -23,6 +25,7 @@ async function fetchApplications() {
     }
 
     try {
+        isLoading.value = true
         message.value = ' '
         const response = await api.get('/admin/student_applications', {
         params: {
@@ -41,6 +44,8 @@ async function fetchApplications() {
         return
         }
         message.value = error.response?.data?.message || 'failed to load student applications'
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -61,6 +66,9 @@ watch(
 
     <div>
         <h1>Student Applications</h1><br>
+        <div v-if="isLoading" class="inline-loader">
+            <LoadingSpinner label="Loading" />
+        </div>
         <p style="color: chocolate;">Total Applications: {{ applications.length }}</p>
 
         <div class="table">
@@ -102,5 +110,9 @@ watch(
 <style scoped>
 h1 {
   color: #2980B9;
+}
+
+.inline-loader{
+    margin: 8px 0 12px;
 }
 </style>

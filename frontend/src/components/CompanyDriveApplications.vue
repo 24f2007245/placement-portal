@@ -4,12 +4,14 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const message = ref('')
 const applications = ref([])
 const route = useRoute()
 const router = useRouter()
 const drive_id = route.params.id
+const isLoading = ref(false)
 
 
 function statusText(status) {
@@ -31,6 +33,7 @@ async function fetchApplications() {
 
 
     try{
+        isLoading.value = true
         message.value = ' '
         const response =await api.get(
         `/company/drive_applications/${drive_id}`,
@@ -51,6 +54,8 @@ async function fetchApplications() {
         return
         }
         message.value = error.response?.data?.message || 'failed to load applications'
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -142,6 +147,9 @@ watch(
         <p v-if="message">{{ message }}</p>
         <p style="color: chocolate;">Total Number Of Applications is {{ applications.length }}</p>
         <h1> Applications for Drive {{ drive_id }} </h1><br>
+        <div v-if="isLoading" class="inline-loader">
+            <LoadingSpinner label="Loading" />
+        </div>
         <div class="table">
             <table v-if="applications.length > 0">
             <thead>
@@ -184,5 +192,9 @@ watch(
 <style scoped>
 h1 {
   color: #2980B9;
+}
+
+.inline-loader{
+    margin: 8px 0 12px;
 }
 </style>

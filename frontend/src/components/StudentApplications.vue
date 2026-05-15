@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const message = ref('')
 const applications = ref([])
+const isLoading = ref(false)
 
 function statusText(status){
     if (status === 0) return 'Applied'
@@ -21,6 +23,7 @@ async function fetchApplications() {
     }
 
     try {
+        isLoading.value = true
         message.value = ' '
         const response = await api.get('/student/applications', {
         headers: {
@@ -37,6 +40,8 @@ async function fetchApplications() {
         return
         }
         message.value = error.response?.data?.message || 'failed to load applications'
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -58,6 +63,9 @@ onMounted(() => {
         </div>
         </button>
         <h1>My Applications</h1><br>
+        <div v-if="isLoading" class="inline-loader">
+            <LoadingSpinner label="Loading" />
+        </div>
         
         <div class="table">
         <table v-if="applications.length > 0">
@@ -108,6 +116,10 @@ h1 {
 #export{
     padding: 10px;
     border: 1px solid #2980B9;
+}
+
+.inline-loader{
+    margin: 8px 0 12px;
 }
 
 </style>

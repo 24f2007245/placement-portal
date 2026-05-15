@@ -4,10 +4,12 @@
 import api from '@/services/api'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const users = ref([])
 const route = useRoute()
 const message = ref('')
+const isLoading = ref(false)
 
 
 
@@ -19,6 +21,7 @@ const fetchUsers = async () => {
         return}
 
     try{
+        isLoading.value = true
         message.value = ' '
         const response = await api.get(
             '/company_application',
@@ -40,6 +43,8 @@ const fetchUsers = async () => {
             return
         }
         console.log(err)
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -123,6 +128,9 @@ watch(
 
     <div id="company_application">
         <h1>Company Application</h1><br>
+        <div v-if="isLoading" class="inline-loader">
+            <LoadingSpinner label="Loading" />
+        </div>
         <div id="cntnt">
             <div class="table">
                 <table v-if="users.length>0">
@@ -165,4 +173,8 @@ watch(
  .dngr{
     color: red;
  }
+
+.inline-loader{
+    margin: 8px 0 12px;
+}
 </style>

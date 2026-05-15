@@ -1,15 +1,17 @@
 <script setup>
 
-import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 
 const rsusers= ref([])
 const message = ref('')
+const isLoading = ref(false)
 const fetchStudent = async () => {
 
     try{
+        isLoading.value = true
         message.value = ' '
         const res = await api.get(
             '/admin/registered_students',
@@ -23,6 +25,8 @@ const fetchStudent = async () => {
         rsusers.value = res.data
     }catch (err) {
         console.log(err)
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -65,6 +69,9 @@ onMounted(() =>{
         <p style="color: chocolate;">Total Number Of Resgistered users is {{ rsusers.length }}</p>
                 <p v-if="message">{{ message }}</p>
                 <h1>Registered Students</h1><br>
+                <div v-if="isLoading" class="inline-loader">
+                    <LoadingSpinner label="Loading" />
+                </div>
                 <div class="table">
                     <table>
                     <thead><tr>
@@ -94,5 +101,10 @@ onMounted(() =>{
     margin-top: 30px;
  }
  #dngr{
-    color: red;
- }</style>
+     color: red;
+ }
+
+.inline-loader{
+     margin: 8px 0 12px;
+}
+</style>

@@ -2,10 +2,12 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const message = ref('')
 const students = ref([])
 const route = useRoute()
+const isLoading = ref(false)
 
 async function fetchShortlistedStudents() {
     const token = localStorage.getItem('token')
@@ -16,6 +18,7 @@ async function fetchShortlistedStudents() {
     }
 
     try {
+      isLoading.value = true
         message.value = ' '
         const response = await api.get('/company/shortlisted_students', {
         params: {
@@ -34,6 +37,8 @@ async function fetchShortlistedStudents() {
         return
         }
         message.value = 'failed to load shortlisted students'
+      } finally {
+        isLoading.value = false
     }
 }
 
@@ -124,6 +129,9 @@ watch(
   <div>
     <p style="color: chocolate;">Total Number Of Shortlisted Students is {{ students.length }}</p>
     <h1>Shortlisted Students</h1><br>
+    <div v-if="isLoading" class="inline-loader">
+      <LoadingSpinner label="Loading" />
+    </div>
     <div class="table">
         <table v-if="students.length > 0">
       <thead>
@@ -165,5 +173,9 @@ watch(
 <style scoped>
 h1 {
   color: #2980B9;
+}
+
+.inline-loader{
+  margin: 8px 0 12px;
 }
 </style>

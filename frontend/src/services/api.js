@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { startLoading, stopLoading } from './loadingState'
 
 // Get API URL from environment variables
 const API_URL = import.meta.env.VITE_API_URL
@@ -10,24 +9,9 @@ const api = axios.create({
   withCredentials: true, //  credentials 
 })
 
-api.interceptors.request.use(
-  (config) => {
-    startLoading()
-    return config
-  },
-  (error) => {
-    stopLoading()
-    return Promise.reject(error)
-  }
-)
-
 api.interceptors.response.use(
-  (response) => {
-    stopLoading()
-    return response
-  },
+  (response) => response,
   (error) => {
-    stopLoading()
     if (error.response?.status === 401) {
       // Handle unauthorized
       console.error('Unauthorized access')
