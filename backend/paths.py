@@ -10,9 +10,6 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-import razorpay      # pyright: ignore[reportMissingImports]
-import hmac
-import hashlib
 
 from flask_caching import Cache                 
 
@@ -53,7 +50,6 @@ def unique_str():
 # POST /company/profile
 # GET /company/drives
 
-# GET /company/dashboard_stats
 # GET /company/drive_applications/<int:drive_id>
 # PATCH /company/application_status/<int:application_id>
 # GET /company/application_resume/<int:application_id>
@@ -69,7 +65,6 @@ def unique_str():
 # GET /student_profile/resume
 # GET /student/applications
 # PATCH /approve_application/<int:company_id>
-# GET /admin/dashboard_stats
 # GET /admin/hired_students
 # GET /admin/drive_applications/<int:drive_id>
 
@@ -553,39 +548,6 @@ api.add_resource(CompanyDrives, '/company/drives')
 # counts____________________________________________________-
 # company dashboard ka
 
-class CompanyDashboardStats(Resource):
-    @jwt_required()
-    def get(self):
-        user_email = get_jwt_identity()
-        current_user = User.query.filter_by(user_email=user_email).first()
-        if not current_user or current_user.role.name != 'company':
-            return {"message": "not authorized"}, 403
-
-        company_profile = CompanyProfile.query.get(current_user.user_id)
-        drives = PlacementsDrives.query.filter_by(company_id=current_user.user_id).all()
-
-        drives_data = []
-        total_applicants = 0
-        for drive in drives:
-            applicants_count = Applications.query.filter_by(drive_id=drive.drive_id).count()
-            total_applicants += applicants_count
-            drives_data.append({
-                "drive_id": drive.drive_id,
-                
-                "applicants_count": applicants_count,
-            })
-
-        return {
-            
-            "total_drives": len(drives_data),
-            "total_applicants": total_applicants,
-            "company_profile": drives_data,
-        }, 200
-
-
-api.add_resource(CompanyDashboardStats, '/company/dashboard_stats')
-
-
 class CompanyDriveApplications(Resource):
     @jwt_required()
     def get(self, drive_id):
@@ -802,77 +764,6 @@ class CompanyShortlistedStudents(Resource):
 
 
 api.add_resource(CompanyShortlistedStudents, '/company/shortlisted_students')
-
-
-# Razorpay integration endpoints
-# class CreateOrder(Resource):
-#     def post(self):
-#         data = request.get_json()
-#         if not data:
-#             return {"message": "invalid request body"}, 400
-
-#         amount = data.get('amount')
-#         currency = data.get('currency', 'INR')
-#         receipt = data.get('receipt') or unique_str()
-
-#         if amount is None:
-#             return {"message": "amount is required (in paise)"}, 400
-#         try:
-#             amount = int(amount)
-#         except Exception:
-#             return {"message": "amount must be an integer (paise)"}, 400
-
-#         if amount < 100:
-#             return {"message": "minimum amount is 100 paise"}, 400
-
-#         key_id = os.getenv('RAZORPAY_KEY_ID')
-#         key_secret = os.getenv('RAZORPAY_KEY_SECRET')
-#         if not key_id or not key_secret:
-#             return {"message": "razorpay not configured"}, 500
-
-#         client = razorpay.Client(auth=(key_id, key_secret))
-#         try:
-#             order = client.order.create({
-#                 'amount': amount,
-#                 'currency': currency,
-#                 'receipt': receipt,
-#             })
-#             return {"order_id": order.get('id'), "amount": order.get('amount'), "currency": order.get('currency')}, 200
-#         except Exception as e:
-#             err = str(e)
-#             if '401' in err or 'Authentication' in err:
-#                 return {"message": "razorpay auth failed"}, 401
-#             return {"message": f"razorpay error: {err}"}, 500
-
-
-# class VerifyPayment(Resource):
-#     def post(self):
-#         data = request.get_json()
-#         if not data:
-#             return {"message": "invalid request body"}, 400
-
-#         order_id = data.get('razorpay_order_id')
-#         payment_id = data.get('razorpay_payment_id')
-#         signature = data.get('razorpay_signature')
-
-#         if not order_id or not payment_id or not signature:
-#             return {"message": "missing required payment fields"}, 400
-
-#         key_secret = os.getenv('RAZORPAY_KEY_SECRET')
-#         if not key_secret:
-#             return {"message": "razorpay not configured"}, 500
-
-#         payload = f"{order_id}|{payment_id}".encode()
-#         generated = hmac.new(key_secret.encode(), payload, hashlib.sha256).hexdigest()
-
-#         if hmac.compare_digest(generated, signature):
-#             return {"status": "ok", "message": "signature verified"}, 200
-#         else:
-#             return {"message": "signature mismatch"}, 400
-
-
-# api.add_resource(CreateOrder, '/api/create-order')
-# api.add_resource(VerifyPayment, '/api/verify-payment')
 
 
 class CompanyApplication(Resource):
@@ -1243,31 +1134,6 @@ api.add_resource(ApproveApplication,"/approve_application/<int:company_id>")
 #________________________________________________________ 
 # 
 # dashboard showing summary
-
-class AdminDashboardStats(Resource):
-    @jwt_required()
-    def get(self):
-        user_email = get_jwt_identity()
-        current_user = User.query.filter_by(user_email=user_email).first()
-        if not current_user or current_user.role.name != 'admin':
-            return {"message": "not authorized"}, 403
-
-        student_role = Role.query.filter_by(name='student').first()
-        company_role = Role.query.filter_by(name='company').first()
-
-        student_count = User.query.filter_by(role_id=student_role.id, status=1).count() if student_role else 0
-        company_count = User.query.filter_by(role_id=company_role.id, status=1).count() if company_role else 0
-        drive_count = PlacementsDrives.query.count()
-
-        return {
-            "total_students": student_count,
-            "total_companies": company_count,
-            "total_drives": drive_count,
-        }, 200
-
-
-api.add_resource(AdminDashboardStats, '/admin/dashboard_stats')
-
 
 class AdminHiredStudents(Resource):
     @jwt_required()

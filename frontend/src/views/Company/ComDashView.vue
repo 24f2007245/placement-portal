@@ -1,59 +1,17 @@
 <script setup>
-import { RouterLink,RouterView,useRouter } from 'vue-router';
-import { ref,onMounted} from 'vue';
-import api from '@/services/api';
+import { RouterLink,useRouter } from 'vue-router';
 
 import Footer from '@/components/Footer.vue';
 import LogedinNav from '@/components/LogedinNav.vue';
 import Welcome from '@/components/SideColumn.vue';
 
-
-const stats = ref({
-    total_drives: 0,
-    total_applicants: 0,
-    drives: 0,
-})
-
 const router=useRouter()
 const name =localStorage.getItem('user_name')
 const company_id=localStorage.getItem('user_id')
 
-
-
-async function fetchDashboardStats() {
-    const token = localStorage.getItem('token')
-    if (!token) {
-        localStorage.clear()
-        window.location.href = '/login'
-        return
-    }
-
-    try {
-        const response = await api.get('/company/dashboard_stats', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-
-        stats.value = response.data
-    } catch (error) {
-        if (error.response?.status === 401 || error.response?.status === 422) {
-            localStorage.clear()
-            window.location.href = '/login'
-            return
-        }
-        message.value = error.response?.data?.message || 'failed to load dashboard stats'
-    }
-}
-
-
 function companyDetails(company_id){
     router.push(`/company/${company_id}`)
 }
-
-onMounted(() => {
-    fetchDashboardStats()
-})
 
 </script>
 
@@ -68,12 +26,9 @@ onMounted(() => {
                 <RouterLink to="/company/shortlisted_students" class="nav_element">shortlisted_students</RouterLink>
                 <RouterLink to="/company/profile" class="nav_element">Company_profile</RouterLink>
             </div>
-            <div id="flex_box">
-                <div class="box"><p>Total Drives</p><h3>{{ stats.total_drives }}</h3></div>
-                <div class="box"><p>Total Applicants</p><h3>{{ stats.total_applicants }}</h3></div>
-                <div class="box" @click="companyDetails(company_id)"><p>{{ name }} Details</p><h3>-></h3></div>
-                <!-- <div class="box"><p>Drives</p><h3>{{ stats.drives }}</h3></div> -->
-            </div>
+            
+                
+                <div @click="companyDetails(company_id)"><p>{{ name }} Details</p></div>
             <router-view />
             <br><br><br>
             <div class="note">
@@ -129,12 +84,6 @@ onMounted(() => {
     } */
 }
 
-@media(max-width:500px){
-   
-    #flex_box{
-        display: inline;
-     }
-}
 
 
 .nav_element {
@@ -144,20 +93,5 @@ onMounted(() => {
 #nav_link {
     display: flex;
     gap: 10px;
-}
-#flex_box{
-    display: flex;
-}
-.box{
-    /* display: inline; */
-    padding: 30px;
-    /* border: 2px solid #2980b9; */
-    /* width: 60px; */
-    margin-left:10px ;
-    margin-top: 20px;
-    align-items: center;
-    color: #f5f5f5;
-    justify-content: center;
-    background:linear-gradient(45deg,#f5f5f5, forestgreen);
 }
 </style>

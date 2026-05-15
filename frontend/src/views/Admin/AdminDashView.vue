@@ -1,50 +1,9 @@
 <script setup>
-import { RouterLink,RouterView } from 'vue-router';
-import { ref, onMounted } from 'vue';
-import api from '@/services/api';
+import { RouterLink } from 'vue-router';
 import LogedinNav from '@/components/LogedinNav.vue';
 import SideBar from '@/components/SideColumn.vue';
 
 import Footer from '@/components/Footer.vue';
-
-const message = ref('')
-const stats = ref({
-    total_students: 0,
-    total_companies: 0,
-    total_drives: 0,
-})
-
-async function fetchDashboardStats() {
-    const token = localStorage.getItem('token')
-    if (!token) {
-        localStorage.clear()
-        window.location.href = '/login'
-        return
-    }
-
-    try {
-        const response = await api.get('/admin/dashboard_stats', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-
-        stats.value = response.data
-    } catch (error) {
-        if (error.response?.status === 401 || error.response?.status === 422) {
-            localStorage.clear()
-            window.location.href = '/login'
-            return
-        }
-        message.value = error.response?.data?.message || 'failed to load dashboard stats'
-    }
-}
-
-onMounted(() => {
-    fetchDashboardStats()
-})
-
-
 </script>
 
 <template>
@@ -62,12 +21,6 @@ onMounted(() => {
                 <RouterLink to="/admin/hired_students" class="nav_ele">hired_students</RouterLink>
                 <RouterLink to="/admin/past_drives" class="nav_ele">Past Drives</RouterLink>
             </div>
-            <p v-if="message">{{ message }}</p>
-            <div id="flex_box">
-                <div class="box"><p>Total Companies</p><h3>{{ stats.total_companies }}</h3></div>
-                <div class="box"><p>Total Students</p><h3>{{ stats.total_students }}</h3></div>
-                <div class="box"><p>Total Drives</p><h3>{{ stats.total_drives }}</h3></div>
-            </div><br><br>
             <!-- <CountView/> -->
             <router-view />
             <!-- <Drives/>
@@ -98,12 +51,6 @@ onMounted(() => {
     
 }
 
-@media(max-width:500px){
-   
-    #flex_box{
-        display: inline;
-     }
-}
 
 
 #content_nav{
@@ -124,20 +71,4 @@ onMounted(() => {
 #flex_box{
     display: flex;
 }
-.box{
-    /* display: inline; */
-    padding: 30px;
-    /* border: 2px solid #2980b9; */
-    /* width: 60px; */
-    margin-left:10px ;
-    margin-top: 20px;
-    align-items: center;
-    color: #f5f5f5;
-    justify-content: center;
-    background:linear-gradient(60deg,#f5f5f5, forestgreen);
-}
-
-
-
-
 </style>
