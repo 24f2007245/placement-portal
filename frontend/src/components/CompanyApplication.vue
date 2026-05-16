@@ -10,11 +10,21 @@ const users = ref([])
 const route = useRoute()
 const message = ref('')
 const isLoading = ref(false)
+const minLoadingMs = 400
+
+function finishLoading(startTime) {
+    const elapsed = Date.now() - startTime
+    const remaining = Math.max(0, minLoadingMs - elapsed)
+    setTimeout(() => {
+        isLoading.value = false
+    }, remaining)
+}
 
 
 
 
 const fetchUsers = async () => {
+    const startTime = Date.now()
     const token = localStorage.getItem('token')
     if (!token){
         window.location.href = '/login'
@@ -44,7 +54,7 @@ const fetchUsers = async () => {
         }
         console.log(err)
     } finally {
-        isLoading.value = false
+        finishLoading(startTime)
     }
 }
 

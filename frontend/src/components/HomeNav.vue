@@ -33,7 +33,7 @@ nav{
   justify-content: space-between;
   /* justify-content: space-between; */
   background-color:#3b7ca6;
-  padding: 12px;
+  padding: 15px;
   z-index: 1000;
 }
 #nav_right{
@@ -53,6 +53,7 @@ nav{
 .nav_element{
   color: #f5f5f5;
   text-decoration: none;
+  font-size: 1.2rem;
   /* gap: 30px; */
 }
 .nav_element:hover{

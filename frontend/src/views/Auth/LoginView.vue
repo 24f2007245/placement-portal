@@ -13,7 +13,13 @@
                 <label for="password">PASSWARD</label><br>
                 <input type="password" name="password" id="password" v-model="formData.password" placeholder="passoword" required><br><br>
 
-                <button type="submit" class="bld">login</button><br><br>
+                <button type="submit" class="bld" :disabled="isLoading" aria-busy="isLoading">
+                    <span v-if="isLoading" class="btn-spinner" aria-hidden="true"></span>
+                    login
+                </button><br><br>
+                <div v-if="isLoading" class="inline-loader">
+                    <LoadingSpinner label="Loading" />
+                </div>
                 <p>{{ message }}</p><br>
                 <div id="auth">
                     <p>or</p><br>
@@ -38,6 +44,7 @@ import {ref, reactive, onMounted} from 'vue'
 import HomeNav from '@/components/HomeNav.vue'
 import Footer from '@/components/Footer.vue'
 import api from '@/services/api'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const formData = reactive({
     email: 'admin@admin.com',
@@ -45,14 +52,15 @@ const formData = reactive({
 })
 
 const message = ref('')
+const isLoading = ref(false)
 
 
 async function submitForm(){
     message.value = ''
-    //console.log(formData)
-    const response = await api.post('/login', formData)
-
+    isLoading.value = true
     try {
+        //console.log(formData)
+        const response = await api.post('/login', formData)
         const data = response.data
         
         localStorage.setItem('token', data.access_token)
@@ -74,6 +82,8 @@ async function submitForm(){
     } catch (error) {
         console.log('Error during login')
         message.value='ERROR HAPPENS: '+ (error.response?.data?.message || error.message)
+    } finally {
+        isLoading.value = false
     }
 
 }
@@ -83,6 +93,7 @@ async function submitForm(){
 
 const handleCredentialResponse = async (response) => {
   const token = response.credential;
+    isLoading.value = true
 
   try {
     const res = await api.post("/auth/google", { token });
@@ -111,6 +122,8 @@ const handleCredentialResponse = async (response) => {
   } catch (err) {
     console.error("Login failed", err);
     message.value='ERROR HAPPENS: '+ (err.response?.data?.message || err.message)
+    } finally {
+        isLoading.value = false
   }
 };
 
@@ -176,6 +189,28 @@ input{
     border: 1px solid #29b;
     color: gray;
     /* padding: 10px; */
+}
+
+.inline-loader{
+    margin: 8px 0 12px;
+}
+
+.btn-spinner{
+    width: 12px;
+    height: 12px;
+    border: 2px solid #cfd8dc;
+    border-top-color: #2980b9;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .flex{

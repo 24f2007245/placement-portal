@@ -8,8 +8,18 @@ const message = ref('')
 const hiredStudents = ref([])
 const route = useRoute()
 const isLoading = ref(false)
+const minLoadingMs = 400
+
+function finishLoading(startTime) {
+  const elapsed = Date.now() - startTime
+  const remaining = Math.max(0, minLoadingMs - elapsed)
+  setTimeout(() => {
+    isLoading.value = false
+  }, remaining)
+}
 
 async function fetchHiredStudents() {
+  const startTime = Date.now()
   const token = localStorage.getItem('token')
   if (!token) {
     localStorage.clear()
@@ -38,7 +48,7 @@ async function fetchHiredStudents() {
     }
     message.value = error.response?.data?.message || 'failed to load hired students'
   } finally {
-    isLoading.value = false
+    finishLoading(startTime)
   }
 }
 

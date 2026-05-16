@@ -8,6 +8,15 @@ const message = ref('')
 const applications = ref([])
 const route = useRoute()
 const isLoading = ref(false)
+const minLoadingMs = 400
+
+function finishLoading(startTime) {
+    const elapsed = Date.now() - startTime
+    const remaining = Math.max(0, minLoadingMs - elapsed)
+    setTimeout(() => {
+        isLoading.value = false
+    }, remaining)
+}
 
 function statusText(status){
     if (status === 0) return 'Applied'
@@ -17,6 +26,7 @@ function statusText(status){
     }
 
 async function fetchApplications() {
+    const startTime = Date.now()
     const token = localStorage.getItem('token')
     if (!token) {
         localStorage.clear()
@@ -45,7 +55,7 @@ async function fetchApplications() {
         }
         message.value = error.response?.data?.message || 'failed to load student applications'
     } finally {
-        isLoading.value = false
+        finishLoading(startTime)
     }
 }
 

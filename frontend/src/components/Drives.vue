@@ -15,6 +15,15 @@ const role=localStorage.getItem('role')
 const router=useRouter()
 const route=useRoute()
 const isLoading = ref(false)
+const minLoadingMs = 400
+
+function finishLoading(startTime) {
+    const elapsed = Date.now() - startTime
+    const remaining = Math.max(0, minLoadingMs - elapsed)
+    setTimeout(() => {
+        isLoading.value = false
+    }, remaining)
+}
 
 
 // functions____________________________________________
@@ -78,6 +87,7 @@ function isStudent(){
 // get request
 
 const fetchDrives = async ()=>{
+    const startTime = Date.now()
     const token = localStorage.getItem('token')
     if(!token){
         localStorage.clear()
@@ -120,7 +130,7 @@ const fetchDrives = async ()=>{
             return}
         message.value = "Failed to load drives"
     } finally {
-        isLoading.value = false
+        finishLoading(startTime)
     }
 }
 

@@ -136,9 +136,11 @@ main {
   /* background-color: #f5f5f5; */
   color: #3b7ca6;
   /* padding: 30px; */
-  background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQAI2TCpsdreAC1nfRQrG2nvAMN_3NcsfNww&s');
-  background-size: cover;
+  /* https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQAI2TCpsdreAC1nfRQrG2nvAMN_3NcsfNww&s */
+  background-image: url('https://c4.wallpaperflare.com/wallpaper/686/492/997/simple-simple-background-wallpaper-preview.jpg');
+  background-size:cover;
   background-attachment: fixed;
+  
   /* keeping it stationary */
   background-position: center;
   padding-bottom: 200px;
@@ -182,7 +184,7 @@ main p {
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  padding-bottom: 30px;
+  padding: 30px;
 
 }
 

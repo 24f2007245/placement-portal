@@ -8,7 +8,17 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
 const rsusers= ref([])
 const message = ref('')
 const isLoading = ref(false)
+const minLoadingMs = 400
+
+function finishLoading(startTime) {
+    const elapsed = Date.now() - startTime
+    const remaining = Math.max(0, minLoadingMs - elapsed)
+    setTimeout(() => {
+        isLoading.value = false
+    }, remaining)
+}
 const fetchStudent = async () => {
+    const startTime = Date.now()
 
     try{
         isLoading.value = true
@@ -26,7 +36,7 @@ const fetchStudent = async () => {
     }catch (err) {
         console.log(err)
     } finally {
-        isLoading.value = false
+        finishLoading(startTime)
     }
 }
 
