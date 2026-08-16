@@ -17,7 +17,7 @@
                 <label for="role">Select Role: </label>
                 <select name="role" id="role" v-model="formData.role">
                     <option value="">choose role</option>
-                    <option value="student" disabled>student</option>
+                    <option value="student">student</option>
                     <option value="company">company</option>
                 </select><br><br>
                 <!-- <label for="role">Role:</label>
@@ -42,7 +42,7 @@
 // import { RouterLink } from 'vue-router'
 import {ref, reactive} from 'vue'
 import HomeNav from '@/components/HomeNav.vue'
-import HowToRegister from '@/components/HowToRegister.vue'
+// import HowToRegister from '@/components/HowToRegister.vue'
 import Footer from '@/components/Footer.vue'
 import api from '@/services/api'
 

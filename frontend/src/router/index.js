@@ -1,23 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import Drives from '@/components/Drives.vue'
-import RegisteredCompany from '@/components/RegisteredCompany.vue'
-import CompanyApplication from '@/components/CompanyApplication.vue'
-import AdminDashView from '@/views/Admin/AdminDashView.vue'
-import ComDashView from '../views/Company/ComDashView.vue'
-import CreateDrives from '@/components/CreateDrives.vue'
-import ViewDrives from '@/components/ViewDrives.vue'
-import DrivesDetails from '@/components/DrivesDetails.vue'
-import StudentProfile from '@/components/StudentProfile.vue'
-import StudentApplications from '@/components/StudentApplications.vue'
-import AdminStudentApplications from '@/components/AdminStudentApplications.vue'
-import AdminHiredStudents from '@/components/AdminHiredStudents.vue'
-import CompanyDriveApplications from '@/components/CompanyDriveApplications.vue'
-import ShortlistedStudents from '@/components/ShortlistedStudents.vue'
-import RegisteredStudent from '@/components/RegisteredStudent.vue'
-import CompanyProfile from '@/components/CompanyProfile.vue'
-import CompanyDetails from '@/components/CompanyDetails.vue'
-import PastDrives from '@/components/PastDrives.vue'
 
 
 const router = createRouter({
@@ -27,7 +8,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('../views/HomeView.vue'),
     },
 
     // auth
@@ -53,39 +34,39 @@ const router = createRouter({
     },
     {
       path: '/admin',
-      component: AdminDashView,
+      component: () => import('@/views/Admin/AdminDashView.vue'),
       children: [
         {
           path: 'drives',
-          component: Drives
+          component: () => import('@/components/Drives.vue')
         },
         {
           path: 'company_application',
-          component: CompanyApplication
+          component: () => import('@/components/CompanyApplication.vue')
         },
         {
           path: 'registered_company',
-          component: RegisteredCompany
+          component: () => import('@/components/RegisteredCompany.vue')
         },
         {
           path: 'registered_students',
-          component: RegisteredStudent
+          component: () => import('@/components/RegisteredStudent.vue')
         },
         {
           path: 'student_applications',
-          component: AdminStudentApplications
+          component: () => import('@/components/AdminStudentApplications.vue')
         },
         {
           path: 'hired_students',
-          component: AdminHiredStudents
+          component: () => import('@/components/AdminHiredStudents.vue')
         },
         {
           path: 'drive/:id',
-          component:DrivesDetails
+          component: () => import('@/components/DrivesDetails.vue')
         },
         {
           path: 'past_drives',
-          component:PastDrives
+          component: () => import('@/components/PastDrives.vue')
         }
       ]
     },
@@ -98,7 +79,7 @@ const router = createRouter({
     },
     {
       path: '/company',
-      component: ComDashView,
+      component: () => import('@/views/Company/ComDashView.vue'),
       children: [
         {
           path: '',
@@ -106,27 +87,27 @@ const router = createRouter({
         },
         {
           path: 'view_drives',
-          component: ViewDrives
+          component: () => import('@/components/ViewDrives.vue')
         },
         {
           path: 'shortlisted_students',
-          component: ShortlistedStudents
+          component: () => import('@/components/ShortlistedStudents.vue')
         },
         {
           path: 'create_drives',
-          component: CreateDrives
+          component: () => import('@/components/CreateDrives.vue')
         },
         {
           path: 'drive/:id/applications',
-          component: CompanyDriveApplications
+          component: () => import('@/components/CompanyDriveApplications.vue')
         },
         {
           path: 'drive/:id',
-          component:DrivesDetails
+          component: () => import('@/components/DrivesDetails.vue')
         },
         {
           path: 'profile',
-          component:CompanyProfile
+          component: () => import('@/components/CompanyProfile.vue')
         }
       ]
     },
@@ -141,36 +122,36 @@ const router = createRouter({
     {
       path: '/student',
       
-      component: () => import('../views/Student/StuDashView.vue'),
+      component: () => import('@/views/Student/StuDashView.vue'),
       
       children: [
         {
           path:'profile',
-          component:StudentProfile
+          component: () => import('@/components/StudentProfile.vue')
         },
         {
           path:'applications',
-          component:StudentApplications
+          component: () => import('@/components/StudentApplications.vue')
         },
         {
           path:'drives',
-          component:Drives
+          component: () => import('@/components/Drives.vue')
         },
         {
           path:'past_drives',
-          component:PastDrives
+          component: () => import('@/components/PastDrives.vue')
         }
       ]
     },
     {
       path: '/drive/:id',
       name: 'drive_details',
-      component: DrivesDetails
+      component: () => import('@/components/DrivesDetails.vue')
     },
     {
       path: '/company/:id',
       name: 'company_details',
-      component: CompanyDetails
+      component: () => import('@/components/CompanyDetails.vue')
     }
   ],
 })

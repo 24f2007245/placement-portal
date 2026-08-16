@@ -1,7 +1,7 @@
 from flask import Flask     # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv      # pyright: ignore[reportMissingImports]
 from sqlalchemy import create_engine     # pyright: ignore[reportMissingImports]
-from sqlalchemy.pool import NullPool
+# from sqlalchemy.pool import NullPool
 from models import db, User, Role
 from flask_jwt_extended import JWTManager    # pyright: ignore[reportMissingImports]
 from flask_cors import CORS      # pyright: ignore[reportMissingImports]
@@ -15,33 +15,33 @@ jwt=JWTManager()
 
 def create_app():
     app= Flask(__name__)
-    app.config["JWT_SECRET_KEY"]='JWT_SECRET'
+    app.config["JWT_SECRET_KEY"]=os.getenv('JWT_SECRET')
     app.config["JWT_ACCESS_TOKEN_EXPIRES"]=1800
     
 
     # getting variables
-    USER = os.getenv("user")
-    PASSWORD = os.getenv("password")
-    HOST = os.getenv("host")
-    PORT = os.getenv("port")
-    DBNAME = os.getenv("dbname")
+    # USER = os.getenv("user")
+    # PASSWORD = os.getenv("password")
+    # HOST = os.getenv("host")
+    # PORT = os.getenv("port")
+    # DBNAME = os.getenv("dbname")
     
     # Construct the SQLAlchemy connection string
-    DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
-    
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-    engine = create_engine(DATABASE_URL, poolclass=NullPool)
+    # DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///project.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     REDIS_URL=os.getenv("REDIS_URL")
     app.config["CACHE_TYPE"]='RedisCache'
     app.config["CACHE_REDIS_URL"]=REDIS_URL
 
-    CORS(app,origins=["https://placement-portal-omega-red.vercel.app"],supports_credentials=True)
+    CORS(app,origins=["http://localhost:5173","http://127.0.0.1:5173"],supports_credentials=True)
 
 
     try:
         with engine.connect() as connection:
-            print("Connection successful!")
+            print("Database connection successful!")
     except Exception as e:
             print(f"Failed to connect: {e}")
 
@@ -79,7 +79,7 @@ def create_app():
             if not admin_password:
                 raise ValueError("admin_password is not set.. ")
             admin=User(
-                user_email='placementcelladmin@gmail.com',
+                user_email='admin@admin.com',
                 user_password=generate_password_hash(admin_password),
                 role=admin_role,
                 user_name='Admin' )
